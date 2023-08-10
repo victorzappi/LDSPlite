@@ -10,6 +10,14 @@ cmake_minimum_required(VERSION 3.18.1)
 
 project("ldsplite")
 
+# Select current LDSP project directory
+
+set(PRJ_DIR "examples/example1/")
+
+# Collect all .cpp files in the directory of the current LDSP project
+
+file(GLOB PRJ_SRC "${PRJ_DIR}*.cpp")
+
 # Creates and names a library, sets it as either STATIC
 # or SHARED, and provides the relative paths to its source code.
 # You can define multiple libraries, and CMake builds them for you.
@@ -27,6 +35,7 @@ add_library( # Sets the name of the library.
              WavetableOscillator.cpp
              WavetableFactory.cpp
              OboeAudioPlayer.cpp
+             ${PRJ_SRC} # add all .cpp files from current LDSP project
         )
 
 include_directories(
