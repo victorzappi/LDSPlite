@@ -1,76 +1,30 @@
-#include "OboeAudioPlayer.h"
+#pragma once
 
-#include <utility>
-#include "AudioSource.h"
-#include "Log.h"
-
-using namespace oboe;
+#include <oboe/Oboe.h>
+#include "AudioPlayer.h"
 
 namespace wavetablesynthesizer {
-#ifndef NDEBUG
-static std::atomic<int> instances{0};
-#endif
+class AudioSource;
 
-OboeAudioPlayer::OboeAudioPlayer(std::shared_ptr<AudioSource> source,
-                                 int samplingRate)
-    : _source(std::move(source)), _samplingRate(samplingRate) {
-#ifndef NDEBUG
-  LOGD("OboeAudioPlayer created. Instances count: %d", ++instances);
-#endif
-}
+class OboeAudioPlayer : public oboe::AudioStreamDataCallback,
+                        public AudioPlayer {
+ public:
+  static constexpr auto channelCount = oboe::ChannelCount::Mono;
 
-OboeAudioPlayer::~OboeAudioPlayer() {
-#ifndef NDEBUG
-  LOGD("OboeAudioPlayer destroyed. Instances count: %d", --instances);
-#endif
-  OboeAudioPlayer::stop();
-}
+  OboeAudioPlayer(std::shared_ptr<AudioSource> source, int samplingRate);
+  ~OboeAudioPlayer();
 
-int32_t OboeAudioPlayer::play() {
-  LOGD("OboeAudioPlayer::play()");
-  AudioStreamBuilder builder;
-  const auto result =
-      builder.setPerformanceMode(PerformanceMode::LowLatency)
-          ->setDirection(Direction::Output)
-          ->setSampleRate(_samplingRate)
-          ->setDataCallback(this)
-          ->setSharingMode(SharingMode::Exclusive)
-          ->setFormat(AudioFormat::Float)
-          ->setChannelCount(channelCount)
-          ->setSampleRateConversionQuality(SampleRateConversionQuality::Best)
-          ->openStream(_stream);
+  int32_t play() override;
 
-  if (result != Result::OK) {
-    return static_cast<int32_t>(result);
-  }
+  void stop() override;
 
-  const auto playResult = _stream->requestStart();
+  oboe::DataCallbackResult onAudioReady(oboe::AudioStream* audioStream,
+                                        void* audioData,
+                                        int32_t framesCount) override;
 
-  return static_cast<int32_t>(playResult);
-}
-
-void OboeAudioPlayer::stop() {
-  LOGD("OboeAudioPlayer::stop()");
-
-  if (_stream) {
-    _stream->stop();
-    _stream->close();
-    _stream.reset();
-  }
-  _source->onPlaybackStopped();
-}
-
-DataCallbackResult OboeAudioPlayer::onAudioReady(oboe::AudioStream* audioStream,
-                                                 void* audioData,
-                                                 int32_t framesCount) {
-  auto* floatData = reinterpret_cast<float*>(audioData);
-
-  for (auto frame = 0; frame < framesCount; ++frame) {
-    const auto sample = _source->getSample();
-    for (auto channel = 0; channel < channelCount; ++channel) {
-      floatData[frame * channelCount + channel] = sample;
-    }
-  }
-  return oboe::DataCallbackResult::Continue;
-}
+ private:
+  std::shared_ptr<AudioSource> _source;
+  std::shared_ptr<oboe::AudioStream> _stream;
+  int _samplingRate;
+};
 }  // namespace ldsplite
