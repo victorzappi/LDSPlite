@@ -1,7 +1,6 @@
-package com.ldsp.wavetablesynthesizer
+package com.ldsp.ldsplite
 
 import androidx.annotation.StringRes
-import com.ldsp.ldsplite.R
 
 enum class Wavetable {
   SINE {
@@ -36,7 +35,7 @@ enum class Wavetable {
   abstract fun toResourceString(): Int
 }
 
-interface WavetableSynthesizer {
+interface LDSPlite {
   suspend fun play()
   suspend fun stop()
   suspend fun isPlaying() : Boolean

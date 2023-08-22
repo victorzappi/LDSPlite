@@ -1,18 +1,17 @@
-package com.ldsp.wavetablesynthesizer
+package com.ldsp.ldsplite
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ldsp.ldsplite.R
 import kotlinx.coroutines.launch
 import kotlin.math.exp
 import kotlin.math.ln
 
 
-class WavetableSynthesizerViewModel : ViewModel() {
+class LDSPliteViewModel : ViewModel() {
 
-  var wavetableSynthesizer: WavetableSynthesizer? = null
+  var LDSPlite: LDSPlite? = null
     set(value) {
       field = value
       applyParameters()
@@ -41,31 +40,31 @@ class WavetableSynthesizerViewModel : ViewModel() {
     val frequencyInHz = frequencyInHzFromSliderPosition(frequencySliderPosition)
     _frequency.value = frequencyInHz
     viewModelScope.launch {
-      wavetableSynthesizer?.setFrequency(frequencyInHz)
+      LDSPlite?.setFrequency(frequencyInHz)
     }
   }
 
   fun setVolume(volumeInDb: Float) {
     _volume.value = volumeInDb
     viewModelScope.launch {
-      wavetableSynthesizer?.setVolume(volumeInDb)
+      LDSPlite?.setVolume(volumeInDb)
     }
   }
 
   fun setWavetable(newWavetable: Wavetable) {
     wavetable = newWavetable
     viewModelScope.launch {
-      wavetableSynthesizer?.setWavetable(newWavetable)
+      LDSPlite?.setWavetable(newWavetable)
     }
   }
 
   fun playClicked() {
     // play() and stop() are suspended functions => we must launch a coroutine
     viewModelScope.launch {
-      if (wavetableSynthesizer?.isPlaying() == true) {
-        wavetableSynthesizer?.stop()
+      if (LDSPlite?.isPlaying() == true) {
+        LDSPlite?.stop()
       } else {
-        wavetableSynthesizer?.play()
+        LDSPlite?.play()
       }
       // Only when the synthesizer changed its state, update the button label.
       updatePlayButtonLabel()
@@ -129,16 +128,16 @@ class WavetableSynthesizerViewModel : ViewModel() {
 
   fun applyParameters() {
     viewModelScope.launch {
-      wavetableSynthesizer?.setFrequency(frequency.value!!)
-      wavetableSynthesizer?.setVolume(volume.value!!)
-      wavetableSynthesizer?.setWavetable(wavetable)
+      LDSPlite?.setFrequency(frequency.value!!)
+      LDSPlite?.setVolume(volume.value!!)
+      LDSPlite?.setWavetable(wavetable)
       updatePlayButtonLabel()
     }
   }
 
   private fun updatePlayButtonLabel() {
     viewModelScope.launch {
-      if (wavetableSynthesizer?.isPlaying() == true) {
+      if (LDSPlite?.isPlaying() == true) {
         _playButtonLabel.value = R.string.stop
       } else {
         _playButtonLabel.value = R.string.play

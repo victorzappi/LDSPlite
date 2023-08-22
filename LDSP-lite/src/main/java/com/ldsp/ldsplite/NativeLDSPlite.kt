@@ -5,7 +5,7 @@ import androidx.lifecycle.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class NativeWavetableSynthesizer : WavetableSynthesizer, DefaultLifecycleObserver {
+class NativeLDSPlite : LDSPlite, DefaultLifecycleObserver {
 
   private var synthesizerHandle: Long = 0
   private val synthesizerMutex = Object()
@@ -28,7 +28,7 @@ class NativeWavetableSynthesizer : WavetableSynthesizer, DefaultLifecycleObserve
     super.onResume(owner)
 
     synchronized(synthesizerMutex) {
-      Log.d("NativeWavetableSynthesizer", "onResume() called")
+      Log.d("NativeLDSPlite", "onResume() called")
       createNativeHandleIfNotExists()
     }
   }
@@ -37,10 +37,10 @@ class NativeWavetableSynthesizer : WavetableSynthesizer, DefaultLifecycleObserve
     super.onPause(owner)
 
     synchronized(synthesizerMutex) {
-      Log.d("NativeWavetableSynthesizer", "onPause() called")
+      Log.d("NativeLDSPlite", "onPause() called")
 
       if (synthesizerHandle == 0L) {
-        Log.e("NativeWavetableSynthesizer", "Attempting to destroy a null synthesizer.")
+        Log.e("NativeLDSPlite", "Attempting to destroy a null synthesizer.")
         return
       }
 

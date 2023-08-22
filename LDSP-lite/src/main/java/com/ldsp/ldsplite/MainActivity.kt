@@ -22,25 +22,25 @@ import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.ldsp.ldsplite.ui.theme.WavetableSynthesizerTheme
+import com.ldsp.ldsplite.ui.theme.LDSPliteTheme
 
 
 class MainActivity : ComponentActivity() {
 
-  private val synthesizer = NativeWavetableSynthesizer()
-  private val synthesizerViewModel: WavetableSynthesizerViewModel by viewModels()
+  private val nativeLDSP = NativeLDSPlite()
+  private val ldspViewModel: LDSPliteViewModel by viewModels()
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-    lifecycle.addObserver(synthesizer)
-    // pass the synthesizer to the ViewModel
-    synthesizerViewModel.wavetableSynthesizer = synthesizer
+    lifecycle.addObserver(nativeLDSP)
+    // pass the nativeLDSP to the ViewModel
+    ldspViewModel.LDSPlite = nativeLDSP
     setContent {
-      WavetableSynthesizerTheme {
+      LDSPliteTheme {
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colors.background) {
           // pass the ViewModel down the composables' hierarchy
-          WavetableSynthesizerApp(Modifier, synthesizerViewModel)
+          LDSPliteApp(Modifier, ldspViewModel)
         }
       }
     }
@@ -48,34 +48,34 @@ class MainActivity : ComponentActivity() {
 
   override fun onDestroy() {
     super.onDestroy()
-    lifecycle.removeObserver(synthesizer)
+    lifecycle.removeObserver(nativeLDSP)
   }
 
   override fun onResume() {
     super.onResume()
-    synthesizerViewModel.applyParameters()
+    ldspViewModel.applyParameters()
   }
 }
 
 @Composable
-fun WavetableSynthesizerApp(
+fun LDSPliteApp(
   modifier: Modifier,
-  synthesizerViewModel: WavetableSynthesizerViewModel = viewModel()
+  ldspViewModel: LDSPliteViewModel = viewModel()
 ) {
     Column(
       modifier = modifier.fillMaxSize(),
       horizontalAlignment = Alignment.CenterHorizontally,
       verticalArrangement = Arrangement.Top,
     ) {
-      WavetableSelectionPanel(modifier, synthesizerViewModel)
-      ControlsPanel(modifier, synthesizerViewModel)
+      WavetableSelectionPanel(modifier, ldspViewModel)
+      ControlsPanel(modifier, ldspViewModel)
     }
 }
 
 @Composable
 private fun ControlsPanel(
   modifier: Modifier,
-  synthesizerViewModel: WavetableSynthesizerViewModel
+  ldspViewModel: LDSPliteViewModel
 ) {
   Row(
     modifier = modifier
@@ -88,8 +88,8 @@ private fun ControlsPanel(
       modifier = modifier.fillMaxWidth(0.7f),
       horizontalAlignment = Alignment.CenterHorizontally
     ) {
-      PitchControl(modifier, synthesizerViewModel)
-      PlayControl(modifier, synthesizerViewModel)
+      PitchControl(modifier, ldspViewModel)
+      PlayControl(modifier, ldspViewModel)
     }
     Column(
       verticalArrangement = Arrangement.Center,
@@ -98,23 +98,23 @@ private fun ControlsPanel(
         .fillMaxWidth()
         .fillMaxHeight()
     ) {
-      VolumeControl(modifier, synthesizerViewModel)
+      VolumeControl(modifier, ldspViewModel)
     }
   }
 }
 
 @Composable
-private fun PlayControl(modifier: Modifier, synthesizerViewModel: WavetableSynthesizerViewModel) {
+private fun PlayControl(modifier: Modifier, ldspViewModel: LDSPliteViewModel) {
   // The label of the play button is now an observable state, an instance of State<Int?>.
   // State<Int?> is used because the label is the id value of the resource string.
   // Thanks to the fact that the composable observes the label,
   // the composable will be recomposed (redrawn) when the observed state changes.
-  val playButtonLabel = synthesizerViewModel.playButtonLabel.observeAsState()
+  val playButtonLabel = ldspViewModel.playButtonLabel.observeAsState()
 
   PlayControlContent(modifier = modifier,
     // onClick handler now simply notifies the ViewModel that it has been clicked
     onClick = {
-      synthesizerViewModel.playClicked()
+      ldspViewModel.playClicked()
     },
     // playButtonLabel will never be null; if it is, then we have a serious implementation issue
     buttonLabel = stringResource(playButtonLabel.value!!))
@@ -131,10 +131,10 @@ private fun PlayControlContent(modifier: Modifier, onClick: () -> Unit, buttonLa
 @Composable
 private fun PitchControl(
   modifier: Modifier,
-  synthesizerViewModel: WavetableSynthesizerViewModel
+  ldspViewModel: LDSPliteViewModel
 ) {
   // if the frequency changes, recompose this composable
-  val frequency = synthesizerViewModel.frequency.observeAsState()
+  val frequency = ldspViewModel.frequency.observeAsState()
   // the slider position state is hoisted by this composable; no need to embed it into
   // the ViewModel, which ideally, shouldn't be aware of the UI.
   // When the slider position changes, this composable will be recomposed as we explained in
@@ -142,7 +142,7 @@ private fun PitchControl(
   val sliderPosition = rememberSaveable {
     mutableStateOf(
       // we use the ViewModel's convenience function to get the initial slider position
-      synthesizerViewModel.sliderPositionFromFrequencyInHz(frequency.value!!)
+      ldspViewModel.sliderPositionFromFrequencyInHz(frequency.value!!)
     )
   }
 
@@ -153,7 +153,7 @@ private fun PitchControl(
     // on slider position change, update the slider position and the ViewModel
     onValueChange = {
       sliderPosition.value = it
-      synthesizerViewModel.setFrequencySliderPosition(it)
+      ldspViewModel.setFrequencySliderPosition(it)
     },
     // this range is now [0, 1] because the ViewModel is responsible for calculating the frequency
     // out of the slider position
@@ -184,19 +184,19 @@ private fun PitchControlContent(
 }
 
 @Composable
-private fun VolumeControl(modifier: Modifier, synthesizerViewModel: WavetableSynthesizerViewModel) {
+private fun VolumeControl(modifier: Modifier, ldspViewModel: LDSPliteViewModel) {
   // volume value is now an observable state; that means that the composable will be
   // recomposed (redrawn) when the observed state changes.
-  val volume = synthesizerViewModel.volume.observeAsState()
+  val volume = ldspViewModel.volume.observeAsState()
 
   VolumeControlContent(
     modifier = modifier,
     // volume value should never be null; if it is, there's a serious implementation issue
     volume = volume.value!!,
     // use the value range from the ViewModel
-    volumeRange = synthesizerViewModel.volumeRange,
+    volumeRange = ldspViewModel.volumeRange,
     // on volume slider change, just update the ViewModel
-    onValueChange = { synthesizerViewModel.setVolume(it) })
+    onValueChange = { ldspViewModel.setVolume(it) })
 }
 
 @Composable
@@ -235,7 +235,7 @@ private fun VolumeControlContent(
 @Composable
 private fun WavetableSelectionPanel(
   modifier: Modifier,
-  synthesizerViewModel: WavetableSynthesizerViewModel
+  ldspViewModel: LDSPliteViewModel
 ) {
   Row(
     modifier = modifier
@@ -252,7 +252,7 @@ private fun WavetableSelectionPanel(
       horizontalAlignment = Alignment.CenterHorizontally
     ) {
       Text(stringResource(R.string.wavetable))
-      WavetableSelectionButtons(modifier, synthesizerViewModel)
+      WavetableSelectionButtons(modifier, ldspViewModel)
     }
   }
 }
@@ -260,7 +260,7 @@ private fun WavetableSelectionPanel(
 @Composable
 private fun WavetableSelectionButtons(
   modifier: Modifier,
-  synthesizerViewModel: WavetableSynthesizerViewModel
+  ldspViewModel: LDSPliteViewModel
 ) {
   Row(
     modifier = modifier.fillMaxWidth(),
@@ -271,7 +271,7 @@ private fun WavetableSelectionButtons(
         modifier = modifier,
         // update the ViewModel when the given wavetable is clicked
         onClick = {
-          synthesizerViewModel.setWavetable(wavetable)
+          ldspViewModel.setWavetable(wavetable)
         },
         // set the label to the resource string that corresponds to the wavetable
         label = stringResource(wavetable.toResourceString()),
@@ -293,9 +293,9 @@ private fun WavetableButton(
 
 @Preview(showBackground = true, device = Devices.AUTOMOTIVE_1024p, widthDp = 1024, heightDp = 720)
 @Composable
-fun WavetableSynthesizerPreview() {
-  WavetableSynthesizerTheme {
-    WavetableSynthesizerApp(Modifier, WavetableSynthesizerViewModel())
+fun LDSPlitePreview() {
+  LDSPliteTheme {
+    LDSPliteApp(Modifier, LDSPliteViewModel())
   }
 }
 
@@ -309,6 +309,6 @@ fun VolumeControlPreview() {
       .fillMaxWidth()
       .fillMaxHeight()
   ) {
-    VolumeControl(modifier = Modifier, synthesizerViewModel = WavetableSynthesizerViewModel())
+    VolumeControl(modifier = Modifier, ldspViewModel = LDSPliteViewModel())
   }
 }

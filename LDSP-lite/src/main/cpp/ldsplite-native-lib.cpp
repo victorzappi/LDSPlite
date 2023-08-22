@@ -5,7 +5,7 @@
 
 extern "C" {
 JNIEXPORT jlong JNICALL
-Java_com_ldsp_ldsplite_NativeWavetableSynthesizer_create(
+Java_com_ldsp_ldsplite_NativeLDSPlite_create(
     JNIEnv* env,
     jobject obj) {
   auto synthesizer =
@@ -20,7 +20,7 @@ Java_com_ldsp_ldsplite_NativeWavetableSynthesizer_create(
 }
 
 JNIEXPORT void JNICALL
-Java_com_ldsp_ldsplite_NativeWavetableSynthesizer_delete(
+Java_com_ldsp_ldsplite_NativeLDSPlite_delete(
     JNIEnv* env,
     jobject obj,
     jlong synthesizerHandle) {
@@ -37,7 +37,7 @@ Java_com_ldsp_ldsplite_NativeWavetableSynthesizer_delete(
 }
 
 JNIEXPORT void JNICALL
-Java_com_ldsp_ldsplite_NativeWavetableSynthesizer_play(
+Java_com_ldsp_ldsplite_NativeLDSPlite_play(
     JNIEnv* env,
     jobject obj,
     jlong synthesizerHandle) {
@@ -55,7 +55,7 @@ Java_com_ldsp_ldsplite_NativeWavetableSynthesizer_play(
 }
 
 JNIEXPORT void JNICALL
-Java_com_ldsp_ldsplite_NativeWavetableSynthesizer_stop(
+Java_com_ldsp_ldsplite_NativeLDSPlite_stop(
     JNIEnv* env,
     jobject obj,
     jlong synthesizerHandle) {
@@ -73,7 +73,7 @@ Java_com_ldsp_ldsplite_NativeWavetableSynthesizer_stop(
 }
 
 JNIEXPORT jboolean JNICALL
-Java_com_ldsp_ldsplite_NativeWavetableSynthesizer_isPlaying(
+Java_com_ldsp_ldsplite_NativeLDSPlite_isPlaying(
     JNIEnv* env,
     jobject obj,
     jlong synthesizerHandle) {
@@ -92,7 +92,7 @@ Java_com_ldsp_ldsplite_NativeWavetableSynthesizer_isPlaying(
 }
 
 JNIEXPORT void JNICALL
-Java_com_ldsp_ldsplite_NativeWavetableSynthesizer_setFrequency(
+Java_com_ldsp_ldsplite_NativeLDSPlite_setFrequency(
     JNIEnv* env,
     jobject obj,
     jlong synthesizerHandle,
@@ -112,7 +112,7 @@ Java_com_ldsp_ldsplite_NativeWavetableSynthesizer_setFrequency(
 }
 
 JNIEXPORT void JNICALL
-Java_com_ldsp_ldsplite_NativeWavetableSynthesizer_setVolume(
+Java_com_ldsp_ldsplite_NativeLDSPlite_setVolume(
     JNIEnv* env,
     jobject obj,
     jlong synthesizerHandle,
@@ -132,7 +132,7 @@ Java_com_ldsp_ldsplite_NativeWavetableSynthesizer_setVolume(
 }
 
 JNIEXPORT void JNICALL
-Java_com_ldsp_ldsplite_NativeWavetableSynthesizer_setWavetable(
+Java_com_ldsp_ldsplite_NativeLDSPlite_setWavetable(
         JNIEnv* env,
         jobject obj,
         jlong synthesizerHandle,

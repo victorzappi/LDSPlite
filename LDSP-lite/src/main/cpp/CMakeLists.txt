@@ -30,7 +30,7 @@ add_library( # Sets the name of the library.
              SHARED
 
              # Provides a relative path to your source file(s).
-             wavetablesynthesizer-native-lib.cpp
+        ldsplite-native-lib.cpp
              WavetableSynthesizer.cpp
         OboeAudioEngine.cpp
              ${PRJ_SRC} # add all .cpp files from current LDSP project
