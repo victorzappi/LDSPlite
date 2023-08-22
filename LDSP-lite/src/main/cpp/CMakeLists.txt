@@ -32,9 +32,7 @@ add_library( # Sets the name of the library.
              # Provides a relative path to your source file(s).
              wavetablesynthesizer-native-lib.cpp
              WavetableSynthesizer.cpp
-             WavetableOscillator.cpp
-             WavetableFactory.cpp
-             OboeAudioPlayer.cpp
+        OboeAudioEngine.cpp
              ${PRJ_SRC} # add all .cpp files from current LDSP project
         )
 

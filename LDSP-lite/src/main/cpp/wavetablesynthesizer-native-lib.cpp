@@ -103,7 +103,7 @@ Java_com_ldsp_ldsplite_NativeWavetableSynthesizer_setFrequency(
   const auto nativeFrequency = static_cast<float>(frequencyInHz);
 
   if (synthesizer) {
-    synthesizer->setFrequency(nativeFrequency);
+    //synthesizer->setFrequency(nativeFrequency);
   } else {
     LOGD(
         "Synthesizer not created. Please, create the synthesizer first by "
@@ -123,7 +123,7 @@ Java_com_ldsp_ldsplite_NativeWavetableSynthesizer_setVolume(
   const auto nativeVolume = static_cast<float>(volumeInDb);
 
   if (synthesizer) {
-    synthesizer->setVolume(nativeVolume);
+    //synthesizer->setVolume(nativeVolume);
   } else {
     LOGD(
         "Synthesizer not created. Please, create the synthesizer first by "
@@ -140,10 +140,10 @@ Java_com_ldsp_ldsplite_NativeWavetableSynthesizer_setWavetable(
     auto* synthesizer =
             reinterpret_cast<wavetablesynthesizer::WavetableSynthesizer*>(
                     synthesizerHandle);
-    const auto nativeWavetable = static_cast<wavetablesynthesizer::Wavetable>(wavetable);
+    //const auto nativeWavetable = static_cast<wavetablesynthesizer::Wavetable>(wavetable);
 
     if (synthesizer) {
-        synthesizer->setWavetable(nativeWavetable);
+        //synthesizer->setWavetable(nativeWavetable);
     } else {
         LOGD(
                 "Synthesizer not created. Please, create the synthesizer first by "

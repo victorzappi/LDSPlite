@@ -1,7 +1,6 @@
-#include "OboeAudioPlayer.h"
+#include "OboeAudioEngine.h"
 
 #include <utility>
-#include "AudioSource.h"
 #include "Log.h"
 
 
@@ -12,26 +11,24 @@ namespace wavetablesynthesizer {
 static std::atomic<int> instances{0};
 #endif
 
-OboeAudioPlayer::OboeAudioPlayer(std::shared_ptr<AudioSource> source,
-                                 int samplingRate)
-    : _source(std::move(source)), _samplingRate(samplingRate) {
+OboeAudioEngine::OboeAudioEngine(int samplingRate) : _samplingRate(samplingRate) {
   //VIC incapsulate internal pointer
   userContext = (LDSPcontext*)&intContext;
 
 #ifndef NDEBUG
-  LOGD("OboeAudioPlayer created. Instances count: %d", ++instances);
+  LOGD("OboeAudioEngine created. Instances count: %d", ++instances);
 #endif
 }
 
-OboeAudioPlayer::~OboeAudioPlayer() {
+OboeAudioEngine::~OboeAudioEngine() {
 #ifndef NDEBUG
-  LOGD("OboeAudioPlayer destroyed. Instances count: %d", --instances);
+  LOGD("OboeAudioEngine destroyed. Instances count: %d", --instances);
 #endif
-  OboeAudioPlayer::stop();
+  OboeAudioEngine::stop();
 }
 
-int32_t OboeAudioPlayer::play() {
-  LOGD("OboeAudioPlayer::play()");
+int32_t OboeAudioEngine::play() {
+  LOGD("OboeAudioEngine::play()");
   AudioStreamBuilder builder;
   const auto result =
       builder.setPerformanceMode(PerformanceMode::LowLatency)
@@ -59,8 +56,8 @@ int32_t OboeAudioPlayer::play() {
   return static_cast<int32_t>(playResult);
 }
 
-void OboeAudioPlayer::stop() {
-  LOGD("OboeAudioPlayer::stop()");
+void OboeAudioEngine::stop() {
+  LOGD("OboeAudioEngine::stop()");
 
   if (_stream) {
     _stream->stop();
@@ -71,7 +68,7 @@ void OboeAudioPlayer::stop() {
   cleanup(userContext, nullptr);
 }
 
-DataCallbackResult OboeAudioPlayer::onAudioReady(oboe::AudioStream* audioStream,
+DataCallbackResult OboeAudioEngine::onAudioReady(oboe::AudioStream* audioStream,
                                                  void* audioData,
                                                  int32_t framesCount) {
 
@@ -82,12 +79,6 @@ DataCallbackResult OboeAudioPlayer::onAudioReady(oboe::AudioStream* audioStream,
 
   render(userContext, nullptr);
 
-  //  for (auto frame = 0; frame < framesCount; ++frame) {
-//    const auto sample = _source->getSample();
-//    for (auto channel = 0; channel < channelCount; ++channel) {
-//      floatData[frame * channelCount + channel] = sample;
-//    }
-//  }
   return oboe::DataCallbackResult::Continue;
 }
 }  // namespace wavetablesynthesizer

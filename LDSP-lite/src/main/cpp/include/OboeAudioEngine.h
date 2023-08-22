@@ -1,31 +1,26 @@
 #pragma once
 
 #include <oboe/Oboe.h>
-#include "AudioPlayer.h"
-
 #include "LDSP-lite.h"
 
 namespace wavetablesynthesizer {
-class AudioSource;
 
-class OboeAudioPlayer : public oboe::AudioStreamDataCallback,
-                        public AudioPlayer {
+class OboeAudioEngine : public oboe::AudioStreamDataCallback {
  public:
   static constexpr auto channelCount = oboe::ChannelCount::Mono;
 
-  OboeAudioPlayer(std::shared_ptr<AudioSource> source, int samplingRate);
-  ~OboeAudioPlayer();
+  OboeAudioEngine(int samplingRate);
+  ~OboeAudioEngine();
 
-  int32_t play() override;
+  int32_t play();
 
-  void stop() override;
+  void stop();
 
   oboe::DataCallbackResult onAudioReady(oboe::AudioStream* audioStream,
                                         void* audioData,
                                         int32_t framesCount) override;
 
  private:
-  std::shared_ptr<AudioSource> _source;
   std::shared_ptr<oboe::AudioStream> _stream;
   int _samplingRate;
   //VIC

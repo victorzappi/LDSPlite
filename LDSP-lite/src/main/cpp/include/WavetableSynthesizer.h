@@ -2,13 +2,10 @@
 
 #include <memory>
 #include <mutex>
-#include "Wavetable.h"
-#include "WavetableFactory.h"
 
 namespace wavetablesynthesizer {
-class WavetableOscillator;
 
-class AudioPlayer;
+class OboeAudioEngine;
 
 constexpr auto samplingRate = 48000;
 
@@ -24,18 +21,9 @@ class WavetableSynthesizer {
 
   bool isPlaying() const;
 
-  void setFrequency(float frequencyInHz);
-
-  void setVolume(float volumeInDb);
-
-  void setWavetable(Wavetable wavetable);
-
  private:
   std::atomic<bool> _isPlaying{false};
   std::mutex _mutex;
-  WavetableFactory _wavetableFactory;
-  Wavetable _currentWavetable{Wavetable::SINE};
-  std::shared_ptr<WavetableOscillator> _oscillator;
-  std::unique_ptr<AudioPlayer> _audioPlayer;
+  std::unique_ptr<OboeAudioEngine> _audioPlayer;
 };
 }  // namespace ldsplite
