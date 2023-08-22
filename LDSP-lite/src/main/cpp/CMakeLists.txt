@@ -12,7 +12,7 @@ project("ldsplite")
 
 # Select current LDSP project directory
 
-set(PRJ_DIR "examples/example1/")
+set(PRJ_DIR "examples/example2/")
 
 # Collect all .cpp files in the directory of the current LDSP project
 

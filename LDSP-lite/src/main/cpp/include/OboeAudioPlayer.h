@@ -3,6 +3,8 @@
 #include <oboe/Oboe.h>
 #include "AudioPlayer.h"
 
+#include "LDSP-lite.h"
+
 namespace wavetablesynthesizer {
 class AudioSource;
 
@@ -26,5 +28,13 @@ class OboeAudioPlayer : public oboe::AudioStreamDataCallback,
   std::shared_ptr<AudioSource> _source;
   std::shared_ptr<oboe::AudioStream> _stream;
   int _samplingRate;
+  //VIC
+  struct LDSPinternalContext {
+    float *audioOut;
+    uint32_t audioFrames;
+    uint32_t audioOutChannels;
+    float audioSampleRate;
+  } intContext;
+  LDSPcontext* userContext = nullptr;
 };
-}  // namespace ldsplite
+}  // namespace wavetablesynthesizer

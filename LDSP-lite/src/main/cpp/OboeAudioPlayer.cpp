@@ -3,7 +3,7 @@
 #include <utility>
 #include "AudioSource.h"
 #include "Log.h"
-#include "LDSP.h"
+
 
 using namespace oboe;
 
@@ -15,6 +15,9 @@ static std::atomic<int> instances{0};
 OboeAudioPlayer::OboeAudioPlayer(std::shared_ptr<AudioSource> source,
                                  int samplingRate)
     : _source(std::move(source)), _samplingRate(samplingRate) {
+  //VIC incapsulate internal pointer
+  userContext = (LDSPcontext*)&intContext;
+
 #ifndef NDEBUG
   LOGD("OboeAudioPlayer created. Instances count: %d", ++instances);
 #endif
@@ -45,6 +48,12 @@ int32_t OboeAudioPlayer::play() {
     return static_cast<int32_t>(result);
   }
 
+  //VIC
+  intContext.audioSampleRate = _samplingRate;
+  intContext.audioOutChannels = channelCount;
+
+  setup(userContext, nullptr);
+
   const auto playResult = _stream->requestStart();
 
   return static_cast<int32_t>(playResult);
@@ -58,21 +67,22 @@ void OboeAudioPlayer::stop() {
     _stream->close();
     _stream.reset();
   }
-  _source->onPlaybackStopped();
+  //VIC
+  cleanup(userContext, nullptr);
 }
 
 DataCallbackResult OboeAudioPlayer::onAudioReady(oboe::AudioStream* audioStream,
                                                  void* audioData,
                                                  int32_t framesCount) {
+
   float* floatData = reinterpret_cast<float*>(audioData);
 
-  render(floatData, framesCount, channelCount, _samplingRate);
+  intContext.audioFrames = framesCount;
+  intContext.audioOut = floatData;
 
-  /**
-   * change from single source
-   * call render function to generate samples
-   */
-//  for (auto frame = 0; frame < framesCount; ++frame) {
+  render(userContext, nullptr);
+
+  //  for (auto frame = 0; frame < framesCount; ++frame) {
 //    const auto sample = _source->getSample();
 //    for (auto channel = 0; channel < channelCount; ++channel) {
 //      floatData[frame * channelCount + channel] = sample;
@@ -80,5 +90,4 @@ DataCallbackResult OboeAudioPlayer::onAudioReady(oboe::AudioStream* audioStream,
 //  }
   return oboe::DataCallbackResult::Continue;
 }
-}  // namespace ldsplite
-
+}  // namespace wavetablesynthesizer

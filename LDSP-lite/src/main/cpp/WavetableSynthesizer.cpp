@@ -44,10 +44,10 @@ void WavetableSynthesizer::setVolume(float volumeInDb) {
 }
 
 void WavetableSynthesizer::setWavetable(Wavetable wavetable) {
-    if (_currentWavetable != wavetable) {
-        _currentWavetable = wavetable;
-        _oscillator->setWavetable(_wavetableFactory.getWaveTable(wavetable));
-    }
+  if (_currentWavetable != wavetable) {
+    _currentWavetable = wavetable;
+    _oscillator->setWavetable(_wavetableFactory.getWaveTable(wavetable));
+  }
 }
 
 void WavetableSynthesizer::stop() {
@@ -56,4 +56,4 @@ void WavetableSynthesizer::stop() {
   _audioPlayer->stop();
   _isPlaying = false;
 }
-}  // namespace ldsplite
+}  // namespace wavetablesynthesizer

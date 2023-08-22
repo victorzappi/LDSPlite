@@ -28,7 +28,7 @@ void WavetableOscillator::swapWavetableIfNecessary() {
 
 void WavetableOscillator::setFrequency(float frequency) {
   indexIncrement = frequency * static_cast<float>(waveTable.size()) /
-                   static_cast<float>(sampleRate);
+      static_cast<float>(sampleRate);
 }
 
 void WavetableOscillator::onPlaybackStopped() {
@@ -41,7 +41,7 @@ float WavetableOscillator::interpolateLinearly() const {
   const auto nextIndex = (truncatedIndex + 1u) % waveTable.size();
   const auto nextIndexWeight = index - static_cast<float>(truncatedIndex);
   return waveTable[nextIndex] * nextIndexWeight +
-         (1.f - nextIndexWeight) * waveTable[truncatedIndex];
+      (1.f - nextIndexWeight) * waveTable[truncatedIndex];
 }
 
 void WavetableOscillator::setAmplitude(float newAmplitude) {
@@ -69,4 +69,4 @@ float A4Oscillator::getSample() {
 void A4Oscillator::onPlaybackStopped() {
   _phase = 0.f;
 }
-}  // namespace ldsplite
+}  // namespace wavetablesynthesizer

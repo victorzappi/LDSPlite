@@ -9,4 +9,4 @@ class AudioPlayer {
 
   virtual void stop() = 0;
 };
-}  // namespace ldsplite
+}  // namespace wavetablesynthesizer
