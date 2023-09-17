@@ -2,34 +2,56 @@
 
 #include <oboe/Oboe.h>
 #include "LDSP-lite.h"
+#include "fullduplex/FullDuplexStream.h"
 
-namespace wavetablesynthesizer {
+namespace ldsplite {
 
-class OboeAudioEngine : public oboe::AudioStreamDataCallback {
+class OboeAudioEngine : public FullDuplexStream /*oboe::AudioStreamDataCallback*/ {
  public:
   static constexpr auto channelCount = oboe::ChannelCount::Mono;
 
   OboeAudioEngine(int samplingRate);
   ~OboeAudioEngine();
 
-  int32_t play();
+  oboe::Result start() override;
+  oboe::Result stop() override;
 
-  void stop();
+  //oboe::Result start();
+  //oboe::Result stop();
 
-  oboe::DataCallbackResult onAudioReady(oboe::AudioStream* audioStream,
-                                        void* audioData,
-                                        int32_t framesCount) override;
+//  int32_t start();
+//   void stop();
+
+//  oboe::DataCallbackResult onAudioReady(oboe::AudioStream* outputStream,
+//                                        void* audioData,
+//                                        int32_t framesCount) override;
+
+  /**
+   * Called when data is available on both streams.
+   * Caller should override this method.
+//   */
+  oboe::DataCallbackResult onBothStreamsReady(
+      float *inputData,
+      int   numInputFrames,
+      float *outputData,
+      int   numOutputFrames
+  ) override;
 
  private:
-  std::shared_ptr<oboe::AudioStream> _stream;
+  std::shared_ptr<oboe::AudioStream> _outStream = nullptr;
+  std::shared_ptr<oboe::AudioStream> _inStream = nullptr;
   int _samplingRate;
-  //VIC
   struct LDSPinternalContext {
+    float *audioIn;
     float *audioOut;
     uint32_t audioFrames;
+    uint32_t audioInChannels;
     uint32_t audioOutChannels;
     float audioSampleRate;
   } intContext;
   LDSPcontext* userContext = nullptr;
+
+  oboe::Result createStream(bool isInput);
 };
-}  // namespace wavetablesynthesizer
+
+}  // namespace ldsplite

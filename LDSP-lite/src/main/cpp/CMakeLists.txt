@@ -7,16 +7,22 @@
 cmake_minimum_required(VERSION 3.18.1)
 
 # Declares and names the project.
-
 project("ldsplite")
 
-# Select current LDSP project directory
 
+
+
+# Select current LDSP project directory
 set(PRJ_DIR "examples/example2/")
 
-# Collect all .cpp files in the directory of the current LDSP project
 
+
+
+# Collect all .cpp files in the directory of the current LDSP project
 file(GLOB PRJ_SRC "${PRJ_DIR}*.cpp")
+
+# Collect all .cpp files in the dependencies directory
+file(GLOB_RECURSE DEPENDENCIES "dependencies/oboe/**/*.cpp")
 
 # Creates and names a library, sets it as either STATIC
 # or SHARED, and provides the relative paths to its source code.
@@ -24,20 +30,24 @@ file(GLOB PRJ_SRC "${PRJ_DIR}*.cpp")
 # Gradle automatically packages shared libraries with your APK.
 
 add_library( # Sets the name of the library.
-             ldsplite
+            ldsplite
 
-             # Sets the library as a shared library.
-             SHARED
+            # Sets the library as a shared library.
+            SHARED
 
-             # Provides a relative path to your source file(s).
-        ldsplite-native-lib.cpp
-             WavetableSynthesizer.cpp
-        OboeAudioEngine.cpp
-             ${PRJ_SRC} # add all .cpp files from current LDSP project
+            # Provides a relative path to your source file(s).
+            ldsplite-native-lib.cpp
+            LDSPlite.cpp
+            OboeAudioEngine.cpp
+            ${PRJ_SRC} # add all .cpp files from current LDSP project
+
+            # dependencies
+            ${DEPENDENCIES}
         )
 
 include_directories(
         include
+        dependencies/oboe
 )
 
 # Searches for a specified prebuilt library and stores the path as a

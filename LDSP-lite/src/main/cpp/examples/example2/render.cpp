@@ -38,8 +38,10 @@ void render(LDSPcontext *context, void *userData)
     while(phase2 > 2.0f *M_PI)
       phase2 -= 2.0f * (float)M_PI;
 
+    //float in = audioRead(context, n, 0);
+
     for(int chn=0; chn<context->audioOutChannels; chn++)
-      audioWrite(context, n, chn, out);
+      audioWrite(context, n, chn, /*in*/out);
   }
 }
 

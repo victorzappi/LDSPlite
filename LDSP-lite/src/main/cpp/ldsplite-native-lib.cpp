@@ -1,7 +1,7 @@
 #include <jni.h>
 #include <memory>
 #include "Log.h"
-#include "WavetableSynthesizer.h"
+#include "LDSPlite.h"
 
 extern "C" {
 JNIEXPORT jlong JNICALL
@@ -9,7 +9,7 @@ Java_com_ldsp_ldsplite_NativeLDSPlite_create(
     JNIEnv* env,
     jobject obj) {
   auto synthesizer =
-      std::make_unique<wavetablesynthesizer::WavetableSynthesizer>();
+      std::make_unique<ldsplite::LDSPlite>();
 
   if (not synthesizer) {
     LOGD("Failed to create the synthesizer.");
@@ -25,7 +25,7 @@ Java_com_ldsp_ldsplite_NativeLDSPlite_delete(
     jobject obj,
     jlong synthesizerHandle) {
   auto* synthesizer =
-      reinterpret_cast<wavetablesynthesizer::WavetableSynthesizer*>(
+      reinterpret_cast<ldsplite::LDSPlite*>(
           synthesizerHandle);
 
   if (not synthesizer) {
@@ -42,11 +42,11 @@ Java_com_ldsp_ldsplite_NativeLDSPlite_play(
     jobject obj,
     jlong synthesizerHandle) {
   auto* synthesizer =
-      reinterpret_cast<wavetablesynthesizer::WavetableSynthesizer*>(
+      reinterpret_cast<ldsplite::LDSPlite*>(
           synthesizerHandle);
 
   if (synthesizer) {
-    synthesizer->play();
+    synthesizer->start();
   } else {
     LOGD(
         "Synthesizer not created. Please, create the synthesizer first by "
@@ -60,7 +60,7 @@ Java_com_ldsp_ldsplite_NativeLDSPlite_stop(
     jobject obj,
     jlong synthesizerHandle) {
   auto* synthesizer =
-      reinterpret_cast<wavetablesynthesizer::WavetableSynthesizer*>(
+      reinterpret_cast<ldsplite::LDSPlite*>(
           synthesizerHandle);
 
   if (synthesizer) {
@@ -78,7 +78,7 @@ Java_com_ldsp_ldsplite_NativeLDSPlite_isPlaying(
     jobject obj,
     jlong synthesizerHandle) {
   auto* synthesizer =
-      reinterpret_cast<wavetablesynthesizer::WavetableSynthesizer*>(
+      reinterpret_cast<ldsplite::LDSPlite*>(
           synthesizerHandle);
 
   if (not synthesizer) {
@@ -88,7 +88,7 @@ Java_com_ldsp_ldsplite_NativeLDSPlite_isPlaying(
     return false;
   }
 
-  return synthesizer->isPlaying();
+  return synthesizer->isStarted();
 }
 
 JNIEXPORT void JNICALL
@@ -98,7 +98,7 @@ Java_com_ldsp_ldsplite_NativeLDSPlite_setFrequency(
     jlong synthesizerHandle,
     jfloat frequencyInHz) {
   auto* synthesizer =
-      reinterpret_cast<wavetablesynthesizer::WavetableSynthesizer*>(
+      reinterpret_cast<ldsplite::LDSPlite*>(
           synthesizerHandle);
   const auto nativeFrequency = static_cast<float>(frequencyInHz);
 
@@ -118,7 +118,7 @@ Java_com_ldsp_ldsplite_NativeLDSPlite_setVolume(
     jlong synthesizerHandle,
     jfloat volumeInDb) {
   auto* synthesizer =
-      reinterpret_cast<wavetablesynthesizer::WavetableSynthesizer*>(
+      reinterpret_cast<ldsplite::LDSPlite*>(
           synthesizerHandle);
   const auto nativeVolume = static_cast<float>(volumeInDb);
 
@@ -138,9 +138,9 @@ Java_com_ldsp_ldsplite_NativeLDSPlite_setWavetable(
         jlong synthesizerHandle,
         jint wavetable) {
     auto* synthesizer =
-            reinterpret_cast<wavetablesynthesizer::WavetableSynthesizer*>(
+            reinterpret_cast<ldsplite::LDSPlite*>(
                     synthesizerHandle);
-    //const auto nativeWavetable = static_cast<wavetablesynthesizer::Wavetable>(wavetable);
+    //const auto nativeWavetable = static_cast<ldsplite::Wavetable>(wavetable);
 
     if (synthesizer) {
         //synthesizer->setWavetable(nativeWavetable);

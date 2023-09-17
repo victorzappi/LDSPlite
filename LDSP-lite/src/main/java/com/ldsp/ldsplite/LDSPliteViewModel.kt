@@ -59,7 +59,7 @@ class LDSPliteViewModel : ViewModel() {
   }
 
   fun playClicked() {
-    // play() and stop() are suspended functions => we must launch a coroutine
+    // start() and stop() are suspended functions => we must launch a coroutine
     viewModelScope.launch {
       if (LDSPlite?.isPlaying() == true) {
         LDSPlite?.stop()
