@@ -1,9 +1,12 @@
 package com.ldsp.ldsplite
 
+import android.Manifest
 import android.content.pm.ActivityInfo
+import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
@@ -21,6 +24,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ldsp.ldsplite.ui.theme.LDSPliteTheme
 
@@ -29,6 +33,12 @@ class MainActivity : ComponentActivity() {
 
   private val nativeLDSP = NativeLDSPlite()
   private val ldspViewModel: LDSPliteViewModel by viewModels()
+
+  private val requestPermissionLauncher =
+    registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
+      ldspViewModel.handlePermissionResult(isGranted)
+    }
+
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -44,7 +54,35 @@ class MainActivity : ComponentActivity() {
         }
       }
     }
+
+    // Initial audio permission check
+    checkAudioPermission()
+
+    // Observe the LiveData from ViewModel to know when to request permission
+    ldspViewModel.requestPermissionEvent.observe(this) { shouldRequest ->
+      if (shouldRequest) {
+        requestAudioPermission()
+      }
+    }
   }
+
+  private fun checkAudioPermission() {
+    val isGranted = ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
+    ldspViewModel.setAudioPermissionResult(isGranted)
+  }
+
+
+  private fun requestAudioPermission() {
+    // Check the permission and update the ViewModel
+    checkAudioPermission()
+
+    // If permission is not granted, request it
+    if (ldspViewModel.audioPermissionGranted.value != true) {
+      requestPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+    }
+  }
+
+
 
   override fun onDestroy() {
     super.onDestroy()
