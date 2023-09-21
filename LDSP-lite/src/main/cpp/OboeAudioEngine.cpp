@@ -1,7 +1,7 @@
 #include "OboeAudioEngine.h"
 
 #include <utility>
-#include "Log.h"
+#include "LDSP_log.h"
 
 
 using namespace oboe;
@@ -18,19 +18,19 @@ OboeAudioEngine::OboeAudioEngine(int samplingRate) : _samplingRate(samplingRate)
   setMNumInputBurstsCushion(0);
 
 #ifndef NDEBUG
-  LOGD("OboeAudioEngine created. Instances count: %d", ++instances);
+  LDSP_log("OboeAudioEngine created. Instances count: %d", ++instances);
 #endif
 }
 
 OboeAudioEngine::~OboeAudioEngine() {
 #ifndef NDEBUG
-  LOGD("OboeAudioEngine destroyed. Instances count: %d", --instances);
+  LDSP_log("OboeAudioEngine destroyed. Instances count: %d", --instances);
 #endif
   OboeAudioEngine::stop();
 }
 
 Result OboeAudioEngine::start() {
-  LOGD("OboeAudioEngine::start()");
+  LDSP_log("OboeAudioEngine::start()");
   bool isInput;
   isInput = false;
   createStream(isInput);
@@ -49,7 +49,7 @@ Result OboeAudioEngine::start() {
 
 
 Result OboeAudioEngine::stop() {
-  LOGD("OboeAudioEngine::stop()");
+  LDSP_log("OboeAudioEngine::stop()");
 
   Result result_out = Result::OK;
   Result result_in = Result::OK;
@@ -97,7 +97,7 @@ DataCallbackResult OboeAudioEngine::onBothStreamsReady(
 
 
 Result OboeAudioEngine::createStream(bool isInput) {
-  LOGD("OboeAudioEngine::createStream()");
+  LDSP_log("OboeAudioEngine::createStream()");
   AudioStreamBuilder builder;
   builder.setPerformanceMode(PerformanceMode::LowLatency)
       ->setDirection(isInput ? Direction::Input : Direction::Output)

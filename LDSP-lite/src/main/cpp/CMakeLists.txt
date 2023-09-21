@@ -9,19 +9,24 @@ cmake_minimum_required(VERSION 3.18.1)
 # Declares and names the project.
 project("ldsplite")
 
+# Optimization flags
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3")
 
 
 
-# Select current LDSP project directory
-set(PRJ_DIR "examples/example2/")
+
+
+# Select current LDSP project directory (must end with '/')
+set(PRJ_DIR "examples/Fundamentals/sine/")
 
 
 
 
-# Collect all .cpp files in the directory of the current LDSP project
-file(GLOB PRJ_SRC "${PRJ_DIR}*.cpp")
+# Collect all .cpp files in the directory of the current LDSP project and subdirectories
+file(GLOB_RECURSE PRJ_SRC "${PRJ_DIR}*.cpp")
 
-# Collect all .cpp files in the dependencies directory
+# Collect all .cpp files in the dependencies directory and subdirectories
 file(GLOB_RECURSE DEPENDENCIES "dependencies/oboe/**/*.cpp")
 
 # Creates and names a library, sets it as either STATIC

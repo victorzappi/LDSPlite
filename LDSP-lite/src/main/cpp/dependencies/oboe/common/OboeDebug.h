@@ -32,10 +32,10 @@
 
 #if OBOE_ENABLE_LOGGING
 #define LOGV(...) __android_log_print(ANDROID_LOG_VERBOSE, MODULE_NAME, __VA_ARGS__)
-#define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, MODULE_NAME, __VA_ARGS__)
+#define LDSP_log(...) __android_log_print(ANDROID_LOG_DEBUG, MODULE_NAME, __VA_ARGS__)
 #else
 #define LOGV(...)
-#define LOGD(...)
+#define LDSP_log(...)
 #endif
 
 #endif //OBOE_DEBUG_H

@@ -3,8 +3,8 @@
 #include <android/log.h>
 
 #ifndef NDEBUG
-#define LOGD(args...) \
+#define LDSP_log(args...) \
 __android_log_print(android_LogPriority::ANDROID_LOG_DEBUG, "LDSP-lite", args)
 #else
-#define LOGD(args...)
+#define LDSP_log(args...)
 #endif

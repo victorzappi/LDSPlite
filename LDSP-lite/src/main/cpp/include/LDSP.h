@@ -7,6 +7,8 @@
 #define LDSP_LITE_APP_SRC_MAIN_CPP_INCLUDE_LDSP_LITE_H_
 
 #include <stdint.h>
+#include "LDSP_log.h"
+#include "BelaUtilities.h"
 
 struct LDSPcontext {
   const float * const audioIn;

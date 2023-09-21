@@ -1,7 +1,7 @@
 #pragma once
 
 #include <oboe/Oboe.h>
-#include "LDSP-lite.h"
+#include "LDSP.h"
 #include "fullduplex/FullDuplexStream.h"
 
 namespace ldsplite {

@@ -1,6 +1,6 @@
 #include <jni.h>
 #include <memory>
-#include "Log.h"
+#include "LDSP_log.h"
 #include "LDSPlite.h"
 
 extern "C" {
@@ -12,7 +12,7 @@ Java_com_ldsp_ldsplite_NativeLDSPlite_create(
       std::make_unique<ldsplite::LDSPlite>();
 
   if (not synthesizer) {
-    LOGD("Failed to create the synthesizer.");
+    LDSP_log("Failed to create the synthesizer.");
     synthesizer.reset(nullptr);
   }
 
@@ -29,7 +29,7 @@ Java_com_ldsp_ldsplite_NativeLDSPlite_delete(
           synthesizerHandle);
 
   if (not synthesizer) {
-    LOGD("Attempt to destroy an unitialized synthesizer.");
+    LDSP_log("Attempt to destroy an unitialized synthesizer.");
     return;
   }
 
@@ -48,7 +48,7 @@ Java_com_ldsp_ldsplite_NativeLDSPlite_play(
   if (synthesizer) {
     synthesizer->start();
   } else {
-    LOGD(
+    LDSP_log(
         "Synthesizer not created. Please, create the synthesizer first by "
         "calling create().");
   }
@@ -66,7 +66,7 @@ Java_com_ldsp_ldsplite_NativeLDSPlite_stop(
   if (synthesizer) {
     synthesizer->stop();
   } else {
-    LOGD(
+    LDSP_log(
         "Synthesizer not created. Please, create the synthesizer first by "
         "calling create().");
   }
@@ -82,7 +82,7 @@ Java_com_ldsp_ldsplite_NativeLDSPlite_isPlaying(
           synthesizerHandle);
 
   if (not synthesizer) {
-    LOGD(
+    LDSP_log(
         "Synthesizer not created. Please, create the synthesizer first by "
         "calling create().");
     return false;
@@ -105,7 +105,7 @@ Java_com_ldsp_ldsplite_NativeLDSPlite_setFrequency(
   if (synthesizer) {
     //synthesizer->setFrequency(nativeFrequency);
   } else {
-    LOGD(
+    LDSP_log(
         "Synthesizer not created. Please, create the synthesizer first by "
         "calling create().");
   }
@@ -125,7 +125,7 @@ Java_com_ldsp_ldsplite_NativeLDSPlite_setVolume(
   if (synthesizer) {
     //synthesizer->setVolume(nativeVolume);
   } else {
-    LOGD(
+    LDSP_log(
         "Synthesizer not created. Please, create the synthesizer first by "
         "calling create().");
   }
@@ -145,7 +145,7 @@ Java_com_ldsp_ldsplite_NativeLDSPlite_setWavetable(
     if (synthesizer) {
         //synthesizer->setWavetable(nativeWavetable);
     } else {
-        LOGD(
+        LDSP_log(
                 "Synthesizer not created. Please, create the synthesizer first by "
                 "calling create().");
     }
