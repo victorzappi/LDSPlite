@@ -6,25 +6,19 @@
 
 namespace ldsplite {
 
-class OboeAudioEngine : public FullDuplexStream /*oboe::AudioStreamDataCallback*/ {
+class OboeAudioEngine : public FullDuplexStream {
  public:
   static constexpr auto channelCount = oboe::ChannelCount::Mono;
 
-  OboeAudioEngine(int samplingRate);
+  OboeAudioEngine();
   ~OboeAudioEngine();
 
   oboe::Result start() override;
   oboe::Result stop() override;
 
-  //oboe::Result start();
-  //oboe::Result stop();
-
-//  int32_t start();
-//   void stop();
-
-//  oboe::DataCallbackResult onAudioReady(oboe::AudioStream* outputStream,
-//                                        void* audioData,
-//                                        int32_t framesCount) override;
+  oboe::DataCallbackResult onAudioReady(oboe::AudioStream* outputStream,
+                                        void* audioData,
+                                        int32_t framesCount) override;
 
   /**
    * Called when data is available on both streams.
@@ -40,7 +34,7 @@ class OboeAudioEngine : public FullDuplexStream /*oboe::AudioStreamDataCallback*
  private:
   std::shared_ptr<oboe::AudioStream> _outStream = nullptr;
   std::shared_ptr<oboe::AudioStream> _inStream = nullptr;
-  int _samplingRate;
+  int _samplingRate = 0;
   struct LDSPinternalContext {
     float *audioIn;
     float *audioOut;
@@ -50,6 +44,8 @@ class OboeAudioEngine : public FullDuplexStream /*oboe::AudioStreamDataCallback*
     float audioSampleRate;
   } intContext;
   LDSPcontext* userContext = nullptr;
+  bool _fullDuplex = true;
+  float *silentInBuff = nullptr;
 
   oboe::Result createStream(bool isInput);
 };

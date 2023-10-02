@@ -7,8 +7,6 @@ namespace ldsplite {
 
 class OboeAudioEngine;
 
-constexpr auto samplingRate = 48000;
-
 class LDSPlite {
  public:
   LDSPlite();
