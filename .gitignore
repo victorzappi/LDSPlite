@@ -16,3 +16,16 @@ local.properties
 
 # make keystore private
 keystore/
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# OS specific files
+# -macOS
+.DS_Store
+
+# Temporary local projects
+_projects/

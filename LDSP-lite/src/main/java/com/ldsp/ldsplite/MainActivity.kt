@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.os.Bundle
+//import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
@@ -31,7 +32,7 @@ import com.ldsp.ldsplite.ui.theme.LDSPliteTheme
 
 class MainActivity : ComponentActivity() {
 
-  private val nativeLDSP = NativeLDSPlite()
+  private lateinit var nativeLDSP: NativeLDSPlite
   private val ldspViewModel: LDSPliteViewModel by viewModels()
 
   private val requestPermissionLauncher =
@@ -41,7 +42,13 @@ class MainActivity : ComponentActivity() {
 
 
   override fun onCreate(savedInstanceState: Bundle?) {
+    //Log.d("MainActivity", ">>>>>>onCreate() called")
+
     super.onCreate(savedInstanceState)
+
+    // Initialize nativeLDSP with the context
+    nativeLDSP = NativeLDSPlite(this)
+
     requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
     lifecycle.addObserver(nativeLDSP)
     // pass the nativeLDSP to the ViewModel
@@ -85,11 +92,13 @@ class MainActivity : ComponentActivity() {
 
 
   override fun onDestroy() {
+    //Log.d("MainActivity", ">>>>>>onDestroy() called")
     super.onDestroy()
     lifecycle.removeObserver(nativeLDSP)
   }
 
   override fun onResume() {
+    //Log.d("MainActivity", ">>>>>>onResume() called")
     super.onResume()
     ldspViewModel.applyParameters()
   }

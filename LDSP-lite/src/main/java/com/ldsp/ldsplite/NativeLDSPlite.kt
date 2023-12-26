@@ -1,11 +1,12 @@
 package com.ldsp.ldsplite
 
-import android.util.Log
-import androidx.lifecycle.*
+import android.content.Context
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class NativeLDSPlite : LDSPlite, DefaultLifecycleObserver {
+class NativeLDSPlite(context: Context) : LDSPlite, DefaultLifecycleObserver {
 
   private var synthesizerHandle: Long = 0
   private val synthesizerMutex = Object()
@@ -17,6 +18,17 @@ class NativeLDSPlite : LDSPlite, DefaultLifecycleObserver {
   private external fun setFrequency(synthesizerHandle: Long, frequencyInHz: Float)
   private external fun setVolume(synthesizerHandle: Long, amplitudeInDb: Float)
   private external fun setWavetable(synthesizerHandle: Long, wavetable: Int)
+  private external fun storeInstanceInNative(instance: NativeLDSPlite)
+  private external fun storeContextInNative(context: Context)
+  private external fun storeClassLoader(classLoader: ClassLoader)
+  external fun readFileFromAssets(context: Context, path: String): ByteArray
+
+  init {
+    // Store the instance in the native code when this object is created
+    storeInstanceInNative(this)
+    storeContextInNative(context)
+    storeClassLoader(this.javaClass.classLoader)
+  }
 
   companion object {
     init {
@@ -27,28 +39,43 @@ class NativeLDSPlite : LDSPlite, DefaultLifecycleObserver {
   override fun onResume(owner: LifecycleOwner) {
     super.onResume(owner)
 
+    //Log.d("NativeLDSPlite", "_________onResume() called")
+
     synchronized(synthesizerMutex) {
-      Log.d("NativeLDSPlite", "onResume() called")
       createNativeHandleIfNotExists()
     }
   }
 
-  override fun onPause(owner: LifecycleOwner) {
-    super.onPause(owner)
+//  override fun onPause(owner: LifecycleOwner) {
+//    super.onPause(owner)
+//    Log.d("NativeLDSPlite", "_________onPause() called")
+//  }
+
+//  override fun onStop(owner: LifecycleOwner) {
+//    super.onStop(owner)
+//
+//    //Log.d("NativeLDSPlite", "_________onStop() called")
+//
+//  }
+
+  override fun onDestroy(owner: LifecycleOwner) {
 
     synchronized(synthesizerMutex) {
-      Log.d("NativeLDSPlite", "onPause() called")
 
-      if (synthesizerHandle == 0L) {
-        Log.e("NativeLDSPlite", "Attempting to destroy a null synthesizer.")
+      if (synthesizerHandle == 0L)
         return
-      }
 
       // Destroy the synthesizer
       delete(synthesizerHandle)
       synthesizerHandle = 0L
     }
+
+    //Log.d("NativeLDSPlite", "_________onDestroy() called")
+
+    super.onDestroy(owner)
   }
+
+
 
   override suspend fun play() = withContext(Dispatchers.Default) {
     synchronized(synthesizerMutex) {
@@ -93,9 +120,8 @@ class NativeLDSPlite : LDSPlite, DefaultLifecycleObserver {
   }
 
   private fun createNativeHandleIfNotExists() {
-    if (synthesizerHandle != 0L) {
+    if (synthesizerHandle != 0L)
       return
-    }
 
     // create the synthesizer
     synthesizerHandle = create()

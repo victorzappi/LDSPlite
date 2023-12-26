@@ -1,0 +1,3 @@
+[submodule "LDSP-lite/src/main/cpp/dependencies/libsndfile"]
+	path = LDSP-lite/src/main/cpp/dependencies/libsndfile
+	url = https://github.com/libsndfile/libsndfile.git

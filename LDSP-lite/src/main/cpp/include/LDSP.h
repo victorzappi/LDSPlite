@@ -10,6 +10,12 @@
 #include "LDSP_log.h"
 #include "BelaUtilities.h"
 
+//VIC these are here to compatibility with LDSP original codebase
+#include <string>
+#include <vector> // vector
+using std::string;
+using std::vector;
+
 struct LDSPcontext {
   const float * const audioIn;
   float * const audioOut;
@@ -17,6 +23,7 @@ struct LDSPcontext {
   const uint32_t audioInChannels;
   const uint32_t audioOutChannels;
   const float audioSampleRate;
+  const string projectName;
 };
 
 
@@ -31,7 +38,6 @@ void cleanup(LDSPcontext *context, void *userData);
 
 static inline float audioRead(LDSPcontext *context, int frame, int channel);
 static inline void audioWrite(LDSPcontext *context, int frame, int channel, float value);
-
 
 //-----------------------------------------------------------------------------------------------
 // inline
