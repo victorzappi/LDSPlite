@@ -33,6 +33,8 @@ add_library( # Sets the name of the library.
         ${PRJ_SRC} # add all .cpp files from current LDSP project
         )
 
+
+
 include_directories(
         ${CMAKE_CURRENT_SOURCE_DIR}/../include
         ${CMAKE_CURRENT_SOURCE_DIR}/..
@@ -52,6 +54,18 @@ find_library( # Sets the name of the path variable.
         log
         )
 
+#set(ONNX_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../dependencies/onnxruntime)
+set(ONNX_DIR /Users/jhoopes/Downloads/onnxruntime_android_1.17.0)
+
+add_library(onnxruntime SHARED IMPORTED)
+set_target_properties(
+        onnxruntime
+        PROPERTIES
+        IMPORTED_LOCATION ${ONNX_DIR}/jni/arm64-v8a/libonnxruntime.so
+        INTERFACE_INCLUDE_DIRECTORIES ${ONNX_DIR}/headers
+)
+
+
 
 # Specifies libraries CMake should link to your target library. You
 # can link multiple libraries, such as libraries you define in this
@@ -65,6 +79,8 @@ target_link_libraries( # Specifies the target library.
         libraries
         extended_oboe
         sndfile
-        seasocks
+#        seasocks
+#        ${ONNX_LIB_PATH}
+        onnxruntime
         android
         )

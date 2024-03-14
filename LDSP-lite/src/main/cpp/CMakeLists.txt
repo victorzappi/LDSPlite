@@ -9,9 +9,10 @@ project("ldsplite")
 
 # Select current LDSP project directory (do not end with '/')
 # the starting location is where the current CMakeLists.txt file is
-#set(PRJ_DIR "examples/Fundamentals/sine")
+set(PRJ_DIR "examples/ML/BasicLSTM")
 #set(PRJ_DIR "examples/Audio/sample_player")
-set(PRJ_DIR "examples/Gui/sliders")
+#set(PRJ_DIR "examples/Fundamentals/sine")
+
 
 
 

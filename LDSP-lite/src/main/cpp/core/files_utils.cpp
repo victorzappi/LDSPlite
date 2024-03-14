@@ -1,6 +1,7 @@
 #include "files_utils.h"
 #include "LDSP_log.h"
 #include <fstream>
+#include <sstream>
 #include <jni.h>
 
 //VIC
@@ -19,12 +20,32 @@ extern jobject g_context;
 extern jobject g_classLoader;
 
 
+bool isFirstDirectorySdcard(const std::string& path) {
+  std::istringstream iss(path);
+  std::string directory;
+
+  // Extract directories from the path
+  std::vector<std::string> directories;
+  while (std::getline(iss, directory, '/')) {
+    directories.push_back(directory);
+  }
+
+  // Check if the first directory is "sdcard"
+  if (directories.size()>=1 && directories[1] == "sdcard") {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+
 std::vector<char> readFile(const std::string& path) {
   std::vector<char> content;
 
 //  LDSP_log("============== path %s\n", path.c_str());
 
-  if (path[0] != '/') {
+  if (!isFirstDirectorySdcard(path)) {
+
     // The path is an asset, call the Java method
     JNIEnv* env = nullptr;
     bool shouldDetach = false;
