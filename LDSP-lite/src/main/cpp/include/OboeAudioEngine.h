@@ -35,6 +35,7 @@ class OboeAudioEngine : public FullDuplexStream {
   std::shared_ptr<oboe::AudioStream> _outStream = nullptr;
   std::shared_ptr<oboe::AudioStream> _inStream = nullptr;
   int _samplingRate = 0;
+  int _bufferSize = 240;
   struct LDSPinternalContext {
     float *audioIn;
     float *audioOut;
@@ -45,7 +46,7 @@ class OboeAudioEngine : public FullDuplexStream {
     string projectName;
   } intContext;
   LDSPcontext* userContext = nullptr;
-  bool _fullDuplex = false;
+  bool _fullDuplex = true;
   float *silentInBuff = nullptr;
 
   oboe::Result createStream(bool isInput);
