@@ -79,7 +79,7 @@ target_link_libraries( # Specifies the target library.
         libraries
         extended_oboe
         sndfile
-#        seasocks
+        seasocks
 #        ${ONNX_LIB_PATH}
         onnxruntime
         android
