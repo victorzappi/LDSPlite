@@ -45,7 +45,7 @@ class OboeAudioEngine : public FullDuplexStream {
     string projectName;
   } intContext;
   LDSPcontext* userContext = nullptr;
-  bool _fullDuplex = false;
+  bool _fullDuplex = true;
   float *silentInBuff = nullptr;
 
   oboe::Result createStream(bool isInput);
