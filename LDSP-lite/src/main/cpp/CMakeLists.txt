@@ -14,8 +14,7 @@ set(PRJ_DIR "examples/Performance/ONNX/GuitarLSTM_Timing")
 #set(PRJ_DIR "examples/Audio/sample_player")
 #set(PRJ_DIR "examples/Fundamentals/sine")
 
-
-
+set(ONNX_VERSION "below24")
 
 # Add subdirectories
 add_subdirectory(core)

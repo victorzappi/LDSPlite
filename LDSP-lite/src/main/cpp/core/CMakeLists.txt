@@ -54,15 +54,15 @@ find_library( # Sets the name of the path variable.
         log
         )
 
-#set(ONNX_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../dependencies/onnxruntime)
-set(ONNX_DIR /Users/jhoopes/Downloads/onnxruntime_android_1.17.0)
 
+set(ONNX_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../dependencies/onnxruntime)
+set(ONNX_LIB ${ONNX_DIR}/lib/${CMAKE_ANDROID_ARCH_ABI}/${ONNX_VERSION}/libonnxruntime.so)
 add_library(onnxruntime SHARED IMPORTED)
 set_target_properties(
         onnxruntime
         PROPERTIES
-        IMPORTED_LOCATION ${ONNX_DIR}/jni/arm64-v8a/libonnxruntime.so
-        INTERFACE_INCLUDE_DIRECTORIES ${ONNX_DIR}/headers
+        IMPORTED_LOCATION ${ONNX_LIB}
+        INTERFACE_INCLUDE_DIRECTORIES ${ONNX_DIR}/include/headers
 )
 
 
@@ -80,7 +80,6 @@ target_link_libraries( # Specifies the target library.
         extended_oboe
         sndfile
         seasocks
-#        ${ONNX_LIB_PATH}
         onnxruntime
         android
         )
