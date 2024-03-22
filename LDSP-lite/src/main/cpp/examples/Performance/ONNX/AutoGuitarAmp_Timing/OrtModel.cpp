@@ -6,8 +6,6 @@
 
 #include <numeric> // std::accumulate()
 
-Ort::MemoryInfo memoryInfo = Ort::MemoryInfo::CreateCpu(OrtArenaAllocator, OrtMemTypeDefault);
-Ort::RunOptions options;
 
 template <typename T>
 T vectorProduct(const std::vector<T> &v) {
@@ -19,30 +17,28 @@ bool OrtModel::setup(const char * _sessionName, const char * _modelPath, bool _m
     this->modelPath = _modelPath;
     this->sessionName = _sessionName;
 
-
-    Ort::SessionOptions sessionOptions;
-    Ort::AllocatorWithDefaultOptions allocator;
-
-    sessionOptions.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_ALL);
-    sessionOptions.EnableCpuMemArena();
-
-    if (_multiThreading) {
-        unsigned int max_threads = std::thread::hardware_concurrency();
-        LDSP_log("Max thread: %d\n", max_threads);
-        sessionOptions.SetIntraOpNumThreads(max_threads);
-    }
-
-    sessionOptions.AddConfigEntry("session.load_model_format", "ONNX");
-    sessionOptions.AddConfigEntry("session.use_ort_model_bytes_directly", "1");
-
     auto content = readFile(this->modelPath);
     const void* onnxByteArray = reinterpret_cast<const void*>(content.data());
     size_t onnxByteArraySize = content.size() * sizeof(char);
 
-    this->env = new Ort::Env(OrtLoggingLevel::ORT_LOGGING_LEVEL_WARNING, _sessionName);
-    this->session = new Ort::Session(*env, onnxByteArray, onnxByteArraySize, sessionOptions);
+    const OrtApiBase * base = OrtGetApiBase();
+    LDSP_log("Using ONNX Version: %s", base->GetVersionString());
+    Ort::InitApi(base->GetApi(15));
 
+    Ort::Env _env;
 
+    Ort::SessionOptions sessionOptions;
+    Ort::AllocatorWithDefaultOptions allocator;
+    sessionOptions.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_ALL);
+    sessionOptions.EnableCpuMemArena();
+    if (_multiThreading) {
+      unsigned int max_threads = std::thread::hardware_concurrency();
+      LDSP_log("Max thread: %d\n", max_threads);
+      sessionOptions.SetIntraOpNumThreads(max_threads);
+    }
+    sessionOptions.AddConfigEntry("session.load_model_format", "ONNX");
+    sessionOptions.AddConfigEntry("session.use_ort_model_bytes_directly", "1");
+    this->session = new Ort::Session(_env, onnxByteArray, onnxByteArraySize, sessionOptions);
 
     LDSP_log("\nLoaded Model!!\n");
     // Get number of inputs/outputs to the model
@@ -129,22 +125,23 @@ bool OrtModel::setup(const char * _sessionName, const char * _modelPath, bool _m
 
     LDSP_log("\n");
 
+    Ort::MemoryInfo memoryInfo = Ort::MemoryInfo::CreateCpu(OrtArenaAllocator, OrtMemTypeDefault);
     for (int i = 0; i < numInputNodes; i++) {
-        inputTensors.push_back(Ort::Value::CreateTensor<float>(
-                                memoryInfo,
-                                inputTensorValues[i].data(),
-                                inputTensorValues[i].size(),
-                                inputNodeDims[i].data(),
-                                inputNodeDims[i].size()));
-    }
-    for (int i = 0; i < numOutputNodes; i++) {
-        outputTensors.push_back(Ort::Value::CreateTensor<float>(
-            memoryInfo,
-            outputTensorValues[i].data(),
-            outputTensorValues[i].size(),
-            outputNodeDims[i].data(),
-            outputNodeDims[i].size()));
-    }
+          inputTensors.push_back(Ort::Value::CreateTensor<float>(
+                                  memoryInfo,
+                                  inputTensorValues[i].data(),
+                                  inputTensorValues[i].size(),
+                                  inputNodeDims[i].data(),
+                                  inputNodeDims[i].size()));
+      }
+      for (int i = 0; i < numOutputNodes; i++) {
+          outputTensors.push_back(Ort::Value::CreateTensor<float>(
+              memoryInfo,
+              outputTensorValues[i].data(),
+              outputTensorValues[i].size(),
+              outputNodeDims[i].data(),
+              outputNodeDims[i].size()));
+      }
 
     return true;   
 }
@@ -186,7 +183,7 @@ void OrtModel::run(float ** inputs, float * output) {
 
     // Run Inference
     this->session->Run(
-        options,
+        Ort::RunOptions(nullptr),
         inputNodeNames.data(),
         inputTensors.data(),
         inputTensors.size(),
@@ -211,7 +208,7 @@ void OrtModel::run(float * input, float * output) {
 
     // Run Inference
     this->session->Run(
-        options,
+        Ort::RunOptions(nullptr),
         inputNodeNames.data(),
         inputTensors.data(),
         inputTensors.size(),
@@ -240,7 +237,7 @@ void OrtModel::run(float * input, float * params, float * output) {
 
     // Run Inference
     this->session->Run(
-        options,
+        Ort::RunOptions(nullptr),
         inputNodeNames.data(),
         inputTensors.data(),
         inputTensors.size(),
