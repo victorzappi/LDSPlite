@@ -7,7 +7,7 @@
 namespace ldsplite {
 
 LDSPlite::LDSPlite()
-    : _audioEngine{std::make_unique<OboeAudioEngine>()} {}
+    : _audioEngine{std::make_unique<OboeAudioEngine>(this)} {}
 
 LDSPlite::~LDSPlite() = default;
 
