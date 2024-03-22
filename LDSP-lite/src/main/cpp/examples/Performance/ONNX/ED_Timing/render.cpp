@@ -30,26 +30,6 @@ int logPtr = 0;
 constexpr int testDuration_sec = 10;
 int numLogs;
 
-bool finishedWriting = false;
-void writeTimingsToFile() {
-  std::string timingLogDir = "/data/user/0/com.ldsp.ldsplite/files";
-  std::string timingLogFileName = "inferenceTiming_"+modelName+"_out"+std::to_string(outputSize)+"_onnx.txt";
-  std::string timingLogFilePath = timingLogDir+"/"+timingLogFileName;
-
-  std::ofstream logFile(timingLogFilePath);
-  if(logFile.is_open())
-  {
-    for (int i=0;i<numLogs; i++)
-      logFile << std::to_string(inferenceTimes[i]) << "\n";
-  }
-  logFile.close();
-
-  finishedWriting=true;
-  LDSP_log("woohoo");
-  delete[] inferenceTimes;
-}
-
-
 bool setup(LDSPcontext *context, void *userData)
 {
     std::string modelPath = modelName+"."+modelType;
@@ -97,11 +77,9 @@ void render(LDSPcontext *context, void *userData)
 
             // Stop the clock  
             auto end_time = std::chrono::high_resolution_clock::now();
-            if (!finishedWriting) {
-              inferenceTimes[logPtr] = std::chrono::duration_cast
-                  <std::chrono::microseconds>(end_time - start_time).count();
-              logPtr++;
-            }
+            inferenceTimes[logPtr] = std::chrono::duration_cast
+                <std::chrono::microseconds>(end_time - start_time).count();
+            logPtr++;
             
             for(int out=0; out<outputSize; out++)
             {
@@ -118,10 +96,24 @@ void render(LDSPcontext *context, void *userData)
             writePointer = 0;
         
         if(logPtr>=numLogs)
-            writeTimingsToFile();
-	}
+          LDSP_requestStop();
+    }
 }
 
 void cleanup(LDSPcontext *context, void *userData)
 {
+  std::string timingLogDir = "/data/user/0/com.ldsp.ldsplite/files";
+  std::string timingLogFileName = "inferenceTiming_"+modelName+"_out"+std::to_string(outputSize)+"_onnx.txt";
+  std::string timingLogFilePath = timingLogDir+"/"+timingLogFileName;
+
+  std::ofstream logFile(timingLogFilePath);
+  if(logFile.is_open())
+  {
+    for (int i=0;i<numLogs; i++)
+      logFile << std::to_string(inferenceTimes[i]) << "\n";
+  }
+  logFile.close();
+//    LDSP_log("cleanup() called %d %s", numLogs, timingLogFilePath.c_str());
+
+  delete[] inferenceTimes;
 }

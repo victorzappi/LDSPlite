@@ -27,25 +27,6 @@ int logPtr = 0;
 constexpr int testDuration_sec = 10;
 int numLogs;
 
-bool finishedWriting = false;
-void writeTimingsToFile() {
-  std::string timingLogDir = "/data/user/0/com.ldsp.ldsplite/files";
-  std::string timingLogFileName = "inferenceTiming_"+modelName+"_out"+std::to_string(outputSize)+"_onnx.txt";
-  std::string timingLogFilePath = timingLogDir+"/"+timingLogFileName;
-
-  std::ofstream logFile(timingLogFilePath);
-  if(logFile.is_open())
-  {
-    for (int i=0;i<numLogs; i++)
-      logFile << std::to_string(inferenceTimes[i]) << "\n";
-  }
-  logFile.close();
-
-  finishedWriting=true;
-  delete[] inferenceTimes;
-}
-
-
 bool setup(LDSPcontext *context, void *userData)
 {
 
@@ -90,11 +71,9 @@ void render(LDSPcontext *context, void *userData)
 
         // Stop the clock  
         auto end_time = std::chrono::high_resolution_clock::now();
-        if (!finishedWriting) {
-          inferenceTimes[logPtr] = std::chrono::duration_cast
-              <std::chrono::microseconds>(end_time - start_time).count();
-          logPtr++;
-        }
+        inferenceTimes[logPtr] = std::chrono::duration_cast
+            <std::chrono::microseconds>(end_time - start_time).count();
+        logPtr++;
 
         // passthrough test, because the model may not be trained
         audioWrite(context, n, 0, input[inputSize-1]);
@@ -106,11 +85,24 @@ void render(LDSPcontext *context, void *userData)
             writePointer = 0;	
 
         if(logPtr>=numLogs)
-            writeTimingsToFile();
+          LDSP_requestStop();
     }
 }
 
 void cleanup(LDSPcontext *context, void *userData)
 {
-  delete[] input;
+  std::string timingLogDir = "/data/user/0/com.ldsp.ldsplite/files";
+  std::string timingLogFileName = "inferenceTiming_"+modelName+"_out"+std::to_string(outputSize)+"_rtneural.txt";
+  std::string timingLogFilePath = timingLogDir+"/"+timingLogFileName;
+
+  std::ofstream logFile(timingLogFilePath);
+  if(logFile.is_open())
+  {
+    for (int i=0;i<numLogs; i++)
+      logFile << std::to_string(inferenceTimes[i]) << "\n";
+  }
+  logFile.close();
+//    LDSP_log("cleanup() called %d %s", numLogs, timingLogFilePath.c_str());
+
+  delete[] inferenceTimes;
 }
