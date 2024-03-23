@@ -17,7 +17,9 @@ class LDSPliteViewModel : ViewModel() {
 
   // LiveData to represent the state of the audio permission
   private val _audioPermissionGranted = MutableLiveData<Boolean>()
+  private val _writePermissionGranted = MutableLiveData<Boolean>()
   val audioPermissionGranted: LiveData<Boolean> get() = _audioPermissionGranted
+  val writePermissionGranted: LiveData<Boolean> get() = _writePermissionGranted
 
   // Call this method when you want to request permission
   fun requestPermission() {
@@ -41,6 +43,11 @@ class LDSPliteViewModel : ViewModel() {
   fun setAudioPermissionResult(granted: Boolean) {
     _audioPermissionGranted.value = granted
   }
+
+  fun setWritePermissionResult(granted: Boolean) {
+    _writePermissionGranted.value = granted
+  }
+
 
 
 

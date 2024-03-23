@@ -99,7 +99,7 @@ void render(LDSPcontext *context, void *userData)
 
 void cleanup(LDSPcontext *context, void *userData)
 {
-    std::string timingLogDir = ".";
+    std::string timingLogDir = "/sdcard";//"/data/local/tmp"; // "/data/user/0/com.ldsp.ldsplite/files"
     std::string timingLogFileName = "inferenceTiming_"+modelName+"_out"+std::to_string(outputSize)+"_rtneural.txt";
     std::string timingLogFilePath = timingLogDir+"/"+timingLogFileName;
 
