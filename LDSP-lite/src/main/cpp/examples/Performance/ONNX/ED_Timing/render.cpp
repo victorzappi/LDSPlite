@@ -102,7 +102,7 @@ void render(LDSPcontext *context, void *userData)
 
 void cleanup(LDSPcontext *context, void *userData)
 {
-  std::string timingLogDir = "/data/user/0/com.ldsp.ldsplite/files";
+  std::string timingLogDir = "/sdcard";//"/data/user/0/com.ldsp.ldsplite/files";
   std::string timingLogFileName = "inferenceTiming_"+modelName+"_out"+std::to_string(outputSize)+"_onnx.txt";
   std::string timingLogFilePath = timingLogDir+"/"+timingLogFileName;
 
@@ -113,7 +113,6 @@ void cleanup(LDSPcontext *context, void *userData)
       logFile << std::to_string(inferenceTimes[i]) << "\n";
   }
   logFile.close();
-//    LDSP_log("cleanup() called %d %s", numLogs, timingLogFilePath.c_str());
 
   delete[] inferenceTimes;
 }

@@ -62,13 +62,15 @@ class MainActivity : ComponentActivity() {
       }
     }
 
-    // Initial audio permission check
+    // Initial permissions check
     checkAudioPermission()
+    checkWritePermission()
 
     // Observe the LiveData from ViewModel to know when to request permission
     ldspViewModel.requestPermissionEvent.observe(this) { shouldRequest ->
       if (shouldRequest) {
         requestAudioPermission()
+        requestWritePermission()
       }
     }
   }
@@ -76,6 +78,11 @@ class MainActivity : ComponentActivity() {
   private fun checkAudioPermission() {
     val isGranted = ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
     ldspViewModel.setAudioPermissionResult(isGranted)
+  }
+
+  private fun checkWritePermission() {
+    val isGranted = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+    ldspViewModel.setWritePermissionResult(isGranted)
   }
 
 
@@ -86,6 +93,16 @@ class MainActivity : ComponentActivity() {
     // If permission is not granted, request it
     if (ldspViewModel.audioPermissionGranted.value != true) {
       requestPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+    }
+  }
+
+  private fun requestWritePermission() {
+    // Check the permission and update the ViewModel
+    checkWritePermission()
+
+    // If permission is not granted, request it
+    if (ldspViewModel.writePermissionGranted.value != true) {
+      requestPermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
     }
   }
 
@@ -109,14 +126,14 @@ fun LDSPliteApp(
   modifier: Modifier,
   ldspViewModel: LDSPliteViewModel = viewModel()
 ) {
-    Column(
-      modifier = modifier.fillMaxSize(),
-      horizontalAlignment = Alignment.CenterHorizontally,
-      verticalArrangement = Arrangement.Top,
-    ) {
-      WavetableSelectionPanel(modifier, ldspViewModel)
-      ControlsPanel(modifier, ldspViewModel)
-    }
+  Column(
+    modifier = modifier.fillMaxSize(),
+    horizontalAlignment = Alignment.CenterHorizontally,
+    verticalArrangement = Arrangement.Top,
+  ) {
+    WavetableSelectionPanel(modifier, ldspViewModel)
+    ControlsPanel(modifier, ldspViewModel)
+  }
 }
 
 @Composable

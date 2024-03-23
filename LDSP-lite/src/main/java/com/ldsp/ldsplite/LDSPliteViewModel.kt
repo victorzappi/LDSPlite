@@ -10,14 +10,16 @@ import kotlin.coroutines.suspendCoroutine
 
 
 class LDSPliteViewModel : ViewModel() {
-  
+
   // LiveData to signal the Activity when to request permission
   private val _requestPermissionEvent = MutableLiveData<Boolean>()
   val requestPermissionEvent: LiveData<Boolean> get() = _requestPermissionEvent
 
   // LiveData to represent the state of the audio permission
   private val _audioPermissionGranted = MutableLiveData<Boolean>()
+  private val _writePermissionGranted = MutableLiveData<Boolean>()
   val audioPermissionGranted: LiveData<Boolean> get() = _audioPermissionGranted
+  val writePermissionGranted: LiveData<Boolean> get() = _writePermissionGranted
 
   // Call this method when you want to request permission
   fun requestPermission() {
@@ -27,13 +29,13 @@ class LDSPliteViewModel : ViewModel() {
   // Handle the result of the permission request
   fun handlePermissionResult(isGranted: Boolean) {
     _audioPermissionGranted.value = isGranted
-//    if (isGranted) {
-//      // Handle granted permission
-//      // For example, you might start some audio processing here
-//    } else {
-//      // Handle denied permission
-//      // You might show a message to the user or disable certain features
-//    }
+    //    if (isGranted) {
+    //      // Handle granted permission
+    //      // For example, you might start some audio processing here
+    //    } else {
+    //      // Handle denied permission
+    //      // You might show a message to the user or disable certain features
+    //    }
   }
 
   // This method can be used to set the result of the audio permission check
@@ -41,6 +43,11 @@ class LDSPliteViewModel : ViewModel() {
   fun setAudioPermissionResult(granted: Boolean) {
     _audioPermissionGranted.value = granted
   }
+
+  fun setWritePermissionResult(granted: Boolean) {
+    _writePermissionGranted.value = granted
+  }
+
 
 
 
