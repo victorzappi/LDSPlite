@@ -5,22 +5,14 @@
 
 OrtModel model;
 
-float *input;
+float input[1];
 float output[1] = {0};
 
-int inputSize;
 int outputSize = 1;
 
-const int circBuffLength = 48000; // a reasonably large buffer, to limit end-of-buffer overhead
-int writePointer;
-int readPointer;
-float circBuff[circBuffLength];
-
-//--------------------------------
+//-------------------------------
 std::string modelType = "onnx";
-std::string modelName = "GuitarLSTM";
-
-
+std::string modelName = "baseline";
 
 unsigned long long * inferenceTimes;
 int logPtr = 0;
@@ -29,18 +21,10 @@ int numLogs;
 
 bool setup(LDSPcontext *context, void *userData)
 {
-
     std::string modelPath = modelName+"."+modelType;
     if (!model.setup("session1", modelPath.c_str())) {
         printf("unable to setup ortModel");
     }
-
-    inputSize = 5;
-    input = new float[inputSize];
-
-
-    writePointer = inputSize-1; // the first intputSize-1 samples must be zeros
-    readPointer = 0;
 
     //--------------------------------
     inferenceTimes = new unsigned long long[context->audioSampleRate*testDuration_sec*1.01];
@@ -53,36 +37,23 @@ void render(LDSPcontext *context, void *userData)
 {
     for(int n=0; n<context->audioFrames; n++)
 	{
-        circBuff[writePointer] = audioRead(context,n,0);
-
-        if(readPointer<=circBuffLength-inputSize)
-            std::copy(circBuff + readPointer, circBuff + readPointer + inputSize, input);
-        else 
-        {
-            int firstPartSize = circBuffLength - readPointer;
-            std::copy(circBuff + readPointer, circBuff + circBuffLength, input);
-            std::copy(circBuff, circBuff + (inputSize - firstPartSize), input + firstPartSize);
-        }
+        input[0] = audioRead(context, n, 0);
 
         // Start the Clock
         auto start_time = std::chrono::high_resolution_clock::now();
-
+        
         model.run(input, output);
 
         // Stop the clock  
         auto end_time = std::chrono::high_resolution_clock::now();
-        inferenceTimes[logPtr] = std::chrono::duration_cast
-            <std::chrono::microseconds>(end_time - start_time).count();
+        inferenceTimes[logPtr] = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time).count();
         logPtr++;
 
-        // passthrough test, because the model may not be trained
-        audioWrite(context, n, 0, input[inputSize-1]);
-        audioWrite(context, n, 1, input[inputSize-1]);
 
-        if(++readPointer >= circBuffLength)
-            readPointer = 0;
-        if(++writePointer >= circBuffLength)
-            writePointer = 0;	
+
+        // passthrough test, because the model may not be trained
+        audioWrite(context, n, 0, input[0]);
+        audioWrite(context, n, 1, input[0]);
 
         if(logPtr>=numLogs)
           LDSP_requestStop();
