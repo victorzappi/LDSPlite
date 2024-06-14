@@ -43,4 +43,4 @@ add_subdirectory(seasocks)
 
 
 #add_subdirectory(onnxruntime)
-
+add_subdirectory(RTNeural)
