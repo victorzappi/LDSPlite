@@ -1,3 +1,6 @@
 [submodule "LDSP-lite/src/main/cpp/dependencies/libsndfile"]
 	path = LDSP-lite/src/main/cpp/dependencies/libsndfile
 	url = https://github.com/libsndfile/libsndfile.git
+[submodule "LDSP-lite/src/main/cpp/dependencies/RTNeural"]
+	path = LDSP-lite/src/main/cpp/dependencies/RTNeural
+	url = https://github.com/jatinchowdhury18/RTNeural.git

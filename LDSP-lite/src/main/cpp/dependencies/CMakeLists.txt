@@ -41,3 +41,5 @@ set(DEFLATE_SUPPORT OFF CACHE BOOL "Include support for deflate (requires zlib).
 add_subdirectory(seasocks)
 
 
+add_subdirectory(RTNeural)
+

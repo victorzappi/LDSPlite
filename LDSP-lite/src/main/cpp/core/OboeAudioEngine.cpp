@@ -19,13 +19,14 @@ namespace ldsplite {
 static std::atomic<int> instances{0};
 #endif
 
-OboeAudioEngine::OboeAudioEngine() {
+OboeAudioEngine::OboeAudioEngine(LDSPlite *ldspLite) {
   intContext.audioIn = nullptr;
   intContext.audioOut = nullptr;
   intContext.audioFrames = 0;
   intContext.audioInChannels = 0;
   intContext.audioOutChannels = 0;
   intContext.audioSampleRate = 0;
+  intContext.ldspLite = ldspLite;
 
   //VIC incapsulate internal pointer
   userContext = (LDSPcontext*)&intContext;
@@ -80,6 +81,8 @@ Result OboeAudioEngine::start() {
 Result OboeAudioEngine::stop() {
   LDSP_log("OboeAudioEngine::stop()");
 
+  cleanup(userContext, nullptr);
+
   Result result_out = Result::OK;
   Result result_in = Result::OK;
 
@@ -94,11 +97,11 @@ Result OboeAudioEngine::stop() {
       _inStream->close();
     }
 
-    if (_outStream != nullptr && _inStream != nullptr)
-      cleanup(userContext, nullptr);
+//    if (_outStream != nullptr && _inStream != nullptr)
+//      cleanup(userContext, nullptr);
   }
-  else if (_outStream != nullptr)
-    cleanup(userContext, nullptr);
+//  else if (_outStream != nullptr)
+//    cleanup(userContext, nullptr);
 
   if(silentInBuff != nullptr)
     delete silentInBuff;
@@ -151,8 +154,6 @@ DataCallbackResult OboeAudioEngine::onBothStreamsReady(float *inputData,
 
 
   //------------------------------------------------------------------------
-
-int _bufferSize = 240;
 Result OboeAudioEngine::createStream(bool isInput) {
   LDSP_log("OboeAudioEngine::createStream()");
   AudioStreamBuilder builder;
@@ -183,9 +184,9 @@ Result OboeAudioEngine::createStream(bool isInput) {
 
     // The input and output buffers will run in sync with input empty
     // and output full. So set the input capacity to match the output.
-    LDSP_log(">____output buffer capacity %d", getOutputStream()->getBufferCapacityInFrames());
+//    LDSP_log(">____output buffer capacity %d", getOutputStream()->getBufferCapacityInFrames());
     builder.setBufferCapacityInFrames(getOutputStream()->getBufferCapacityInFrames());
-    LDSP_log(">____output frames per callback %d", getOutputStream()->getFramesPerCallback());
+//    LDSP_log(">____output frames per callback %d", getOutputStream()->getFramesPerCallback());
     builder.setFramesPerCallback(getOutputStream()->getFramesPerCallback()); // app buffer size
   }
 
@@ -196,16 +197,23 @@ Result OboeAudioEngine::createStream(bool isInput) {
     oboeStream->setBufferSizeInFrames(_bufferSize);
   }
   else {
-    LDSP_log(">____output buffer size %d", getOutputStream()->getBufferSizeInFrames());
-    //oboeStream->setBufferSizeInFrames(getOutputStream()->getBufferSizeInFrames());
-    oboeStream->setBufferSizeInFrames(oboeStream->getFramesPerBurst() * 4);
+//    LDSP_log(">____output buffer size %d", getOutputStream()->getBufferSizeInFrames());
+    oboeStream->setBufferSizeInFrames(getOutputStream()->getBufferSizeInFrames());
+//    oboeStream->setBufferSizeInFrames(oboeStream->getFramesPerBurst() * 4);
   }
 
-
-  LDSP_log("____buffer capacity %d", oboeStream->getBufferCapacityInFrames());
-  LDSP_log("____frames per callback %d", oboeStream->getFramesPerCallback());
-  LDSP_log("____buffer size %d", oboeStream->getBufferSizeInFrames());
-  LDSP_log("____frames per burst %d", oboeStream->getFramesPerBurst());
+  if(!isInput) {
+    LDSP_log("____output buffer capacity %d", oboeStream->getBufferCapacityInFrames());
+    LDSP_log("____output frames per callback %d", oboeStream->getFramesPerCallback());
+    LDSP_log("____output buffer size %d", oboeStream->getBufferSizeInFrames());
+    LDSP_log("____output frames per burst %d", oboeStream->getFramesPerBurst());
+  }
+  else {
+    LDSP_log("____input buffer capacity %d", oboeStream->getBufferCapacityInFrames());
+    LDSP_log("____input frames per callback %d", oboeStream->getFramesPerCallback());
+    LDSP_log("____input buffer size %d", oboeStream->getBufferSizeInFrames());
+    LDSP_log("____input frames per burst %d", oboeStream->getFramesPerBurst());
+  }
 
   //VIC callback frame count works! it can be set via code for both in and out!
   // buffer capacity seems quite random, but no problem

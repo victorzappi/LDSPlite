@@ -66,5 +66,6 @@ target_link_libraries( # Specifies the target library.
         extended_oboe
         sndfile
         seasocks
+        RTNeural
         android
         )
