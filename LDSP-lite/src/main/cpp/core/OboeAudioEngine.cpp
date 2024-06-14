@@ -153,7 +153,8 @@ DataCallbackResult OboeAudioEngine::onBothStreamsReady(float *inputData,
 };
 
 
-  //------------------------------------------------------------------------
+//------------------------------------------------------------------------
+
 Result OboeAudioEngine::createStream(bool isInput) {
   LDSP_log("OboeAudioEngine::createStream()");
   AudioStreamBuilder builder;
@@ -165,14 +166,14 @@ Result OboeAudioEngine::createStream(bool isInput) {
       ->setSampleRateConversionQuality(SampleRateConversionQuality::Best)
       ->setUsage(Usage::Media)
       ->setContentType(ContentType::Music)
-      //->setDeviceId(deviceId)
+          //->setDeviceId(deviceId)
       ->setSessionId(SessionId::None)
       ->setChannelConversionAllowed(true)
       ->setFormatConversionAllowed(true)
       ;
 
-    if(_samplingRate!=0)
-      builder.setSampleRate(_samplingRate); // otherwise, native samplerate is set automatically
+  if(_samplingRate!=0)
+    builder.setSampleRate(_samplingRate); // otherwise, native samplerate is set automatically
 
   if(!isInput) {
     builder.setBufferCapacityInFrames(2 * _bufferSize);
