@@ -34,13 +34,6 @@ add_library( # Sets the name of the library.
         )
 
 
-
-include_directories(
-        ${CMAKE_CURRENT_SOURCE_DIR}/../include
-        ${CMAKE_CURRENT_SOURCE_DIR}/..
-)
-# the include necessary for dependencies are included in each dependency
-
 # Searches for a specified prebuilt library and stores the path as a
 # variable. Because CMake includes system libraries in the search path by
 # default, you only need to specify the name of the public NDK library
@@ -54,18 +47,10 @@ find_library( # Sets the name of the path variable.
         log
         )
 
-
-set(ONNX_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../dependencies/onnxruntime)
-set(ONNX_LIB ${ONNX_DIR}/lib/${CMAKE_ANDROID_ARCH_ABI}/${ONNX_VERSION}/libonnxruntime.so)
-add_library(onnxruntime SHARED IMPORTED)
-set_target_properties(
-        onnxruntime
-        PROPERTIES
-        IMPORTED_LOCATION ${ONNX_LIB}
-        INTERFACE_INCLUDE_DIRECTORIES ${ONNX_DIR}/include/headers
-)
-
-
+# onnxruntime is a dynamic lib and needs a target link directory
+target_link_directories(ldsplite
+        PRIVATE "../dependencies/onnxruntime/${CMAKE_ANDROID_ARCH_ABI}/${ONNX_VERSION}"
+        )
 
 # Specifies libraries CMake should link to your target library. You
 # can link multiple libraries, such as libraries you define in this

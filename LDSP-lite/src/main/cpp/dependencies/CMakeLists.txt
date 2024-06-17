@@ -33,7 +33,6 @@ add_subdirectory(libsndfile)
 # We are using a custom version of seasocks that builds for Android
 # seasocks source: https://github.com/mattgodbolt/seasocks
 # Set the options for Seasocks
-
 set(SEASOCKS_SHARED OFF CACHE BOOL "Build seasocks as a shared library" FORCE)
 set(UNITTESTS OFF CACHE BOOL "Build unittests." FORCE)
 set(COVERAGE OFF CACHE BOOL "Build with code coverage enabled" FORCE)
@@ -41,6 +40,8 @@ set(SEASOCKS_EXAMPLE_APP OFF CACHE BOOL "Build the example applications." FORCE)
 set(DEFLATE_SUPPORT OFF CACHE BOOL "Include support for deflate (requires zlib)." FORCE)
 add_subdirectory(seasocks)
 
+# onnx runtime, we are using a a pre-built dynamic lib here
+add_subdirectory(onnxruntime)
 
-#add_subdirectory(onnxruntime)
+# rtneural
 add_subdirectory(RTNeural)
