@@ -104,7 +104,7 @@ void cleanup(LDSPcontext *context, void *userData)
   std::ofstream logFile(timingLogFilePath);
   if(logFile.is_open())
   {
-    for (int i=0;i<numLogs; i++)
+    for(int i=0;i<numLogs; i++)
       logFile << std::to_string(inferenceTimes[i]) << "\n";
   }
   logFile.close();
