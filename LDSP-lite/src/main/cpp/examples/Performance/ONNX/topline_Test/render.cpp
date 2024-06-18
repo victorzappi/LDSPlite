@@ -1,5 +1,5 @@
 #include "LDSP.h"
-#include "OrtModel.h"
+#include "libraries/OrtModel/OrtModel.h"
 
 OrtModel model;
 std::string modelType = "onnx";
@@ -23,15 +23,14 @@ float circBuff[circBuffLength];
 bool setup(LDSPcontext *context, void *userData)
 {
     std::string modelPath = modelName+"."+modelType;
-    if (!model.setup("session1", modelPath.c_str())) {
-        printf("unable to setup ortModel");
-    }
+    if (!model.setup("session1", modelPath))
+        LDSP_log("unable to setup ortModel\n");
 
     writePointer = w; // the first w samples must be zeros
     readPointer = 0;
 
     if(context->audioFrames % w)
-        printf("Warning! Period size (%d) is supposed to be an integer multiple of the output size w (%d)!\n", context->audioFrames, outputSize);
+        LDSP_log("Warning! Period size (%d) is supposed to be an integer multiple of the output size w (%d)!\n", context->audioFrames, outputSize);
 
     return true;
 }

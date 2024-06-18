@@ -1,5 +1,5 @@
 #include "LDSP.h"
-#include "OrtModel.h"
+#include "libraries/OrtModel/OrtModel.h"
 #include <fstream>
 
 OrtModel model;
@@ -14,7 +14,7 @@ int outputSize = w;
 int inputCounter = 0;
 
 const int circBuffLength = 2*w;//48000; // a reasonably large buffer, to limit end-of-buffer overhead
-int writePointer; 
+int writePointer;
 int readPointer;
 float circBuff[circBuffLength];
 
@@ -29,74 +29,72 @@ int numLogs;
 
 bool setup(LDSPcontext *context, void *userData)
 {
-    std::string modelPath = modelName+"."+modelType;
-    if (!model.setup("session1", modelPath.c_str())) {
-        printf("unable to setup ortModel");
-    }
+  std::string modelPath = modelName+"."+modelType;
+  if (!model.setup("session1", modelPath.c_str()))
+    LDSP_log("unable to setup ortModel\n");
 
-    writePointer = w; // the first w samples must be zeros
-    readPointer = 0;
+  writePointer = w; // the first w samples must be zeros
+  readPointer = 0;
 
-    if(context->audioFrames % w)
-        printf("Warning! Period size (%d) is supposed to be an integer multiple of the output size w (%d)!\n", context->audioFrames, outputSize);
+  if(context->audioFrames % w)
+    LDSP_log("Warning! Period size (%d) is supposed to be an integer multiple of the output size w (%d)!\n", context->audioFrames, outputSize);
 
-    //--------------------------------
-    inferenceTimes = new unsigned long long[context->audioSampleRate*testDuration_sec*1.01];
-    numLogs = context->audioSampleRate*testDuration_sec / outputSize; // division to handle case of models outputting a block of samples
+  //--------------------------------
+  inferenceTimes = new unsigned long long[context->audioSampleRate*testDuration_sec*1.01];
+  numLogs = context->audioSampleRate*testDuration_sec / outputSize; // division to handle case of models outputting a block of samples
 
-    return true;
+  return true;
 }
 
 void render(LDSPcontext *context, void *userData)
 {
-    for(int n=0; n<context->audioFrames; n++)
-	{
-        circBuff[writePointer] = audioRead(context,n,0);
+  for(int n=0; n<context->audioFrames; n++)
+  {
+    circBuff[writePointer] = audioRead(context,n,0);
 
-        // run inference every w inputs
-        if( ++inputCounter == outputSize )
-        {
-            inputCounter = 0;
+    // run inference every w inputs
+    if( ++inputCounter == outputSize )
+    {
+      inputCounter = 0;
 
-            if(readPointer<=circBuffLength-inputSize)
-                std::copy(circBuff + readPointer, circBuff + readPointer + inputSize, input);
-            else 
-            {
-                int firstPartSize = circBuffLength - readPointer;
-                std::copy(circBuff + readPointer, circBuff + circBuffLength, input);
-                std::copy(circBuff, circBuff + (inputSize - firstPartSize), input + firstPartSize);
-            }
+      if(readPointer<=circBuffLength-inputSize)
+        std::copy(circBuff + readPointer, circBuff + readPointer + inputSize, input);
+      else
+      {
+        int firstPartSize = circBuffLength - readPointer;
+        std::copy(circBuff + readPointer, circBuff + circBuffLength, input);
+        std::copy(circBuff, circBuff + (inputSize - firstPartSize), input + firstPartSize);
+      }
 
-            // Start the Clock
-            auto start_time = std::chrono::high_resolution_clock::now();
+      // Start the Clock
+      auto start_time = std::chrono::high_resolution_clock::now();
 
-            model.run(input, output); // outputs a block of w samples
+      model.run(input, output); // outputs a block of w samples
 
-            // Stop the clock
-            auto end_time = std::chrono::high_resolution_clock::now();
-            inferenceTimes[logPtr] = std::chrono::duration_cast
-                <std::chrono::microseconds>(end_time - start_time).count();
-            logPtr++;
-            
-            for(int out=0; out<outputSize; out++)
-            {
-                // passthrough test, because the model may not be trained
-                audioWrite(context, n-outputSize+1+out, 0, input[out]);
-                audioWrite(context, n-outputSize+1+out, 1, input[out]);
-            }
+      // Stop the clock
+      auto end_time = std::chrono::high_resolution_clock::now();
+      inferenceTimes[logPtr] = std::chrono::duration_cast
+          <std::chrono::microseconds>(end_time - start_time).count();
+      logPtr++;
 
-            readPointer += outputSize;
-            if( readPointer >= circBuffLength)
-                readPointer -= circBuffLength;
-        }
-        if(++writePointer >= circBuffLength)
-            writePointer = 0;
+      for(int out=0; out<outputSize; out++)
+      {
+        // passthrough test, because the model may not be trained
+        audioWrite(context, n-outputSize+1+out, 0, input[out]);
+        audioWrite(context, n-outputSize+1+out, 1, input[out]);
+      }
 
-        if(logPtr>=numLogs)
-          LDSP_requestStop();
+      readPointer += outputSize;
+      if( readPointer >= circBuffLength)
+        readPointer -= circBuffLength;
     }
-}
+    if(++writePointer >= circBuffLength)
+      writePointer = 0;
 
+    if(logPtr>=numLogs)
+      LDSP_requestStop();
+  }
+}
 void cleanup(LDSPcontext *context, void *userData)
 {
   std::string timingLogDir = "/data/user/0/com.ldsp.ldsplite/files";

@@ -21,7 +21,7 @@ target_include_directories(libraries PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/GuiCont
 target_include_directories(libraries PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/JSON")
 target_include_directories(libraries PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/Oscillator")
 target_include_directories(libraries PUBLIC "../dependencies/onnxruntime/include/headers") # needed by OrtModel
-#target_include_directories(libraries PUBLIC OrtModel)
+target_include_directories(libraries PUBLIC OrtModel)
 
 # rtneural does not need to explicitly add includes with
 # target_include_directories()

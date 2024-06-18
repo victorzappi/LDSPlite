@@ -1,5 +1,5 @@
 #include "LDSP.h"
-#include "OrtModel.h"
+#include "libraries/OrtModel/OrtModel.h"
 #include <chrono>
 #include <fstream> // ofstream
 
@@ -21,43 +21,42 @@ int numLogs;
 
 bool setup(LDSPcontext *context, void *userData)
 {
-    std::string modelPath = modelName+"."+modelType;
-    if (!model.setup("session1", modelPath.c_str())) {
-        printf("unable to setup ortModel");
-    }
+  std::string modelPath = modelName+"."+modelType;
+  if (!model.setup("session1", modelPath))
+    printf("unable to setup ortModel\n");
 
-    //--------------------------------
-    inferenceTimes = new unsigned long long[context->audioSampleRate*testDuration_sec*1.01];
-    numLogs = context->audioSampleRate*testDuration_sec / outputSize; // division to handle case of models outputting a block of samples
+  //--------------------------------
+  inferenceTimes = new unsigned long long[context->audioSampleRate*testDuration_sec*1.01];
+  numLogs = context->audioSampleRate*testDuration_sec / outputSize; // division to handle case of models outputting a block of samples
 
-    return true;
+  return true;
 }
 
 void render(LDSPcontext *context, void *userData)
 {
-    for(int n=0; n<context->audioFrames; n++)
-	{
-        input[0] = audioRead(context, n, 0);
+  for(int n=0; n<context->audioFrames; n++)
+  {
+    input[0] = audioRead(context, n, 0);
 
-        // Start the Clock
-        auto start_time = std::chrono::high_resolution_clock::now();
-        
-        model.run(input, output);
+    // Start the Clock
+    auto start_time = std::chrono::high_resolution_clock::now();
 
-        // Stop the clock  
-        auto end_time = std::chrono::high_resolution_clock::now();
-        inferenceTimes[logPtr] = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time).count();
-        logPtr++;
+    model.run(input, output);
+
+    // Stop the clock
+    auto end_time = std::chrono::high_resolution_clock::now();
+    inferenceTimes[logPtr] = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time).count();
+    logPtr++;
 
 
 
-        // passthrough test, because the model may not be trained
-        audioWrite(context, n, 0, input[0]);
-        audioWrite(context, n, 1, input[0]);
+    // passthrough test, because the model may not be trained
+    audioWrite(context, n, 0, input[0]);
+    audioWrite(context, n, 1, input[0]);
 
-        if(logPtr>=numLogs)
-          LDSP_requestStop();
-    }
+    if(logPtr>=numLogs)
+      LDSP_requestStop();
+  }
 }
 
 void cleanup(LDSPcontext *context, void *userData)
@@ -73,7 +72,6 @@ void cleanup(LDSPcontext *context, void *userData)
       logFile << std::to_string(inferenceTimes[i]) << "\n";
   }
   logFile.close();
-//    LDSP_log("cleanup() called %d %s", numLogs, timingLogFilePath.c_str());
 
   delete[] inferenceTimes;
 }

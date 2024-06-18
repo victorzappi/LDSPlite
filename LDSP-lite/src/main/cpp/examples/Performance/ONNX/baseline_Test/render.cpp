@@ -1,6 +1,5 @@
 #include "LDSP.h"
-#include "OrtModel.h"
-
+#include "libraries/OrtModel/OrtModel.h"
 
 std::string modelType = "onnx";
 std::string modelName = "baseline";
@@ -15,16 +14,15 @@ float output[1];
 bool setup(LDSPcontext *context, void *userData) {
 
   std::string modelPath = modelName+"."+modelType;
-  if (!ortModel.setup("session1", modelPath.c_str())) {
-    LDSP_log("unable to setup ortModel");
-  }
+  if (!ortModel.setup("session1", modelPath))
+    LDSP_log("unable to setup ortModel\n");
 
   return true;
 }
 
-void render(LDSPcontext *context, void *userData) 
+void render(LDSPcontext *context, void *userData)
 {
-   for(int n=0; n<context->audioFrames; n++) {
+  for(int n=0; n<context->audioFrames; n++) {
 
     float out = audioRead(context, n, 0);
 
@@ -40,4 +38,3 @@ void render(LDSPcontext *context, void *userData)
 void cleanup(LDSPcontext *context, void *userData)
 {
 }
-
