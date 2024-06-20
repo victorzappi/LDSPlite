@@ -27,5 +27,10 @@ keystore/
 # -macOS
 .DS_Store
 
+# inner repos
+**/LDSPlite-ONNX
+**/LDSPlite-RTNeural
+
+
 # Temporary local projects
 _projects/

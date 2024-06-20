@@ -5,5 +5,7 @@
     <mapping directory="$PROJECT_DIR$/LDSP-lite/src/main/cpp/dependencies/RTNeural" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/LDSP-lite/src/main/cpp/dependencies/RTNeural/modules/xsimd" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/LDSP-lite/src/main/cpp/dependencies/libsndfile" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/LDSP-lite/src/main/cpp/examples/LDSPlite-ONNX" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/LDSP-lite/src/main/cpp/examples/LDSPlite-RTNeural" vcs="Git" />
   </component>
 </project>

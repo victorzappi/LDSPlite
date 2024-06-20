@@ -6,7 +6,7 @@ cmake_minimum_required(VERSION 3.18.1)
 project("ldsplite")
 
 #TODO
-# double check ONNX and RTNeural examples, add references and move to repos
+# move ONNX and RTNeural examples to repos
 # change name to app
 # update examples/MachineLearning projects
 # move assets automatically
@@ -14,7 +14,7 @@ project("ldsplite")
 #---------------------------------------------------------------------------------------------------
 # Select current LDSP project directory (do not end with '/')
 # the starting location is where the current CMakeLists.txt file is
-set(PRJ_DIR "examples/Performance/RTNeural/AutoGuitarAmp_Timing")
+set(PRJ_DIR "examples/LDSPlite-RTNeural/AutoGuitarAmp_Timing")
 #set(PRJ_DIR "examples/Fundamentals/sine")
 #set(PRJ_DIR "examples/Audio/sample_player")
 #set(PRJ_DIR "examples/Gui/sliders")
