@@ -69,3 +69,46 @@ target_link_libraries( # Specifies the target library.
         RTNeural
         android
         )
+
+
+# handle assets
+
+# Define the assets directory
+set(ASSETS_DIR "${CMAKE_SOURCE_DIR}/../assets")
+# Get all files and directories in the assets directory
+file(GLOB ASSETS_CONTENT "${ASSETS_DIR}/*")
+# Remove all files and directories in assets except 'resources'
+foreach(ITEM ${ASSETS_CONTENT})
+    if(NOT ITEM MATCHES "${ASSETS_DIR}/resources")
+        file(REMOVE_RECURSE ${ITEM})
+    endif()
+endforeach()
+
+# Prepare PRJ_DIR by removing leading ./ or / if present
+if(PRJ_DIR MATCHES "^\\./")
+    string(REPLACE "./" "" PRJ_DIR ${PRJ_DIR})
+elseif(PRJ_DIR MATCHES "^/")
+    string(SUBSTRING ${PRJ_DIR} 1 -1 PRJ_DIR)
+endif()
+# Then remove trailing / if present
+if(PRJ_DIR MATCHES ".*/$")
+    string(SUBSTRING ${PRJ_DIR} 0 -1 PRJ_DIR)
+endif()
+# Prepend CMAKE_SOURCE_DIR
+set(PRJ_DIR "${CMAKE_SOURCE_DIR}/${PRJ_DIR}")
+
+#message("--------------Assets directory: ${ASSETS_DIR}")
+#message("--------------Project directory: ${PRJ_DIR}")
+
+# Collect all files in the PRJ_DIR
+file(GLOB ALL_FILES
+        "${PRJ_DIR}/*"
+        "${PRJ_DIR}/*.*"
+        )
+# Loop through each file and copy it to ./assets if it is not a .cpp, .c, or .h file
+foreach(FILE_PATH ${ALL_FILES})
+    get_filename_component(FILE_NAME ${FILE_PATH} NAME)
+    if (NOT FILE_NAME MATCHES "\\.(cpp|c|h)$")
+        file(COPY ${FILE_PATH} DESTINATION "${ASSETS_DIR}")
+    endif()
+endforeach()

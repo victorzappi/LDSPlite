@@ -7,11 +7,6 @@
 //VIC
 //TODO
 // use readFile in Libraries/AudioFile/AudioFileUtilities.cpp:getSamples) and anywhere else it's needed
-// finally, automatically copy general and project resources in 'assets'
-// note that:
-// we are not going to use projects/project_name, so that files can be addressed directly as if in the same folder as application! [? ---> maybe use project_name?]
-// general resources should be moved only if Gui.h is included anywhere in current project
-// assets is wiped at every build, except for resources, which is wiped if already there and Gui.h is not included ---> all this stuff can be done in CMake...
 
 // Global references for JNI
 extern JavaVM* g_JavaVM;
