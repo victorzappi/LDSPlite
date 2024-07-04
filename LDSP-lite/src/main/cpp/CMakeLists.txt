@@ -12,8 +12,8 @@ project("ldsplite")
 #---------------------------------------------------------------------------------------------------
 # Select current LDSP project directory
 # the starting location is where the current CMakeLists.txt file is
-set(PRJ_DIR "examples/MachineLearning/RTNeural")
-#set(PRJ_DIR "examples/Fundamentals/sine")
+#set(PRJ_DIR "examples/MachineLearning/RTNeural")
+set(PRJ_DIR "examples/Fundamentals/sine")
 #set(PRJ_DIR "examples/Audio/sample_player")
 #set(PRJ_DIR "examples/Gui/sliders")
 #---------------------------------------------------------------------------------------------------
@@ -25,38 +25,38 @@ set(PRJ_DIR "examples/MachineLearning/RTNeural")
 
 # Determine the script to run based on the operating system
 if(UNIX)
-    set(GET_ANDROID_VERSION_SCRIPT "${CMAKE_SOURCE_DIR}/get_android_version.sh")
+    set(GET_ANDROID_API_SCRIPT "${CMAKE_SOURCE_DIR}/get_android_api.sh")
 elseif(WIN32)
-    set(GET_ANDROID_VERSION_SCRIPT "${CMAKE_SOURCE_DIR}/get_android_version.bat")
+    set(GET_ANDROID_API_SCRIPT "${CMAKE_SOURCE_DIR}/get_android_api.bat")
 else()
     message(FATAL_ERROR "Unsupported platform")
 endif()
 # Ensure the script is executable (Unix-like systems only)
 if(UNIX)
-    execute_process(COMMAND chmod +x ${GET_ANDROID_VERSION_SCRIPT})
+    execute_process(COMMAND chmod +x ${GET_ANDROID_API_SCRIPT})
 endif()
 # Run the script to get the Android version
 execute_process(
-        COMMAND ${GET_ANDROID_VERSION_SCRIPT}
-        OUTPUT_VARIABLE ANDROID_VERSION
+        COMMAND ${GET_ANDROID_API_SCRIPT}
+        OUTPUT_VARIABLE ANDROID_API
         OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 # Handle case in which no phone nor emulator is connected
-if(ANDROID_VERSION STREQUAL "")
-    set(ANDROID_VERSION_NUMBER 0)  # Set a default value
+if(ANDROID_API STREQUAL "")
+    set(ANDROID_API_NUMBER 0)  # Set a default value
 else()
     # Convert the Android version to a number
-    string(REGEX REPLACE "[^0-9]" "" ANDROID_VERSION_NUMBER ${ANDROID_VERSION})
+    string(REGEX REPLACE "[^0-9]" "" ANDROID_API_NUMBER ${ANDROID_API})
 endif()
 # Perform the comparison and set the onnx var
-if(ANDROID_VERSION_NUMBER GREATER_EQUAL 7)
+if(ANDROID_API_NUMBER GREATER_EQUAL 24)
     set(ONNX_VERSION "aboveOrEqual24")
 else()
     set(ONNX_VERSION "below24")
 endif()
 #file(WRITE "${CMAKE_SOURCE_DIR}/onnx_version.txt" "ONNX_VERSION: ${ONNX_VERSION}\n
-#ANDROID_VERSION: ${ANDROID_VERSION}\n
-#ANDROID_VERSION_NUMBER: ${ANDROID_VERSION_NUMBER}")
+#ANDROID_API: ${ANDROID_API}\n
+#ANDROID_API_NUMBER: ${ANDROID_API_NUMBER}")
 
 #set(ONNX_VERSION "aboveOrEqual24") #VIC we can force the version for debugging
 

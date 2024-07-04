@@ -17,6 +17,9 @@ local.properties
 # make keystore private
 keystore/
 
+# assets, which are added dynamically at build time
+assets/*
+
 # Compiled Static libraries
 *.lai
 *.la
@@ -30,7 +33,6 @@ keystore/
 # inner repos
 **/LDSPlite-ONNX
 **/LDSPlite-RTNeural
-
 
 # Temporary local projects
 _projects/

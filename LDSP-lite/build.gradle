@@ -24,12 +24,11 @@ android {
 
     defaultConfig {
         applicationId "com.ldsp.ldsplite"
-        minSdk 23
+        minSdk 22
         targetSdk 31
         versionCode 1
         versionName "1.0"
 
-//        ndkVersion "21.4.7075529"
         ndkVersion "25.2.9519653"
 
         ndk {

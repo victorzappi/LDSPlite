@@ -41,7 +41,7 @@ set(DEFLATE_SUPPORT OFF CACHE BOOL "Include support for deflate (requires zlib).
 add_subdirectory(seasocks)
 
 # onnx runtime, we are using a a pre-built dynamic lib here
-add_subdirectory(onnxruntime)
+#add_subdirectory(onnxruntime)
 
 # rtneural
 add_subdirectory(RTNeural)

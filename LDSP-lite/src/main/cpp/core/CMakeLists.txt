@@ -47,10 +47,13 @@ find_library( # Sets the name of the path variable.
         log
         )
 
-# onnxruntime is a dynamic lib and needs a target link directory
-target_link_directories(ldsplite
-        PRIVATE "../dependencies/onnxruntime/${CMAKE_ANDROID_ARCH_ABI}/${ONNX_VERSION}"
-        )
+#VIC in Android studio, all pre-built libs must be added here instead of in dedicated CMakeLists.txt
+# otherwise they are not picked up by Android Studio and put in the apk...
+add_library(onnxruntime SHARED IMPORTED)
+set(ONNX_LIB_PATH "${CMAKE_SOURCE_DIR}/dependencies/onnxruntime/${CMAKE_ANDROID_ARCH_ABI}/${ONNX_VERSION}/libonnxruntime.so")
+set_target_properties ( onnxruntime
+                        PROPERTIES
+                        IMPORTED_LOCATION ${ONNX_LIB_PATH})
 
 # Specifies libraries CMake should link to your target library. You
 # can link multiple libraries, such as libraries you define in this
@@ -75,6 +78,13 @@ target_link_libraries( # Specifies the target library.
 
 # Define the assets directory
 set(ASSETS_DIR "${CMAKE_SOURCE_DIR}/../assets")
+# Define the source resources directory
+set(SOURCE_RESOURCES_DIR "${CMAKE_SOURCE_DIR}/../resources")
+# Check if the resources folder exists in the assets directory
+if(NOT EXISTS "${ASSETS_DIR}/resources")
+    # Copy the resources folder from the source directory
+    file(COPY "${SOURCE_RESOURCES_DIR}" DESTINATION "${ASSETS_DIR}")
+endif()
 # Get all files and directories in the assets directory
 file(GLOB ASSETS_CONTENT "${ASSETS_DIR}/*")
 # Remove all files and directories in assets except 'resources'
