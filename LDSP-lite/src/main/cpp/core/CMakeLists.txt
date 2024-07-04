@@ -79,7 +79,7 @@ target_link_libraries( # Specifies the target library.
 # Define the assets directory
 set(ASSETS_DIR "${CMAKE_SOURCE_DIR}/../assets")
 # Define the source resources directory
-set(SOURCE_RESOURCES_DIR "${CMAKE_SOURCE_DIR}/../resources")
+set(SOURCE_RESOURCES_DIR "${CMAKE_SOURCE_DIR}/../../resources")
 # Check if the resources folder exists in the assets directory
 if(NOT EXISTS "${ASSETS_DIR}/resources")
     # Copy the resources folder from the source directory
