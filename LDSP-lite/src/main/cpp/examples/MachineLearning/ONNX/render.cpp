@@ -19,43 +19,46 @@ float input[1] = {0};
 float output[1];
 
 
-bool setup(LDSPcontext *context, void *userData) 
+bool setup(LDSPcontext *context, void *userData)
 {
-    // Initialize ONNX Runtime Model Wrapper
-    std::string modelPath = modelName+"."+modelType;
-    if (!ortModel.setup("session1", modelPath)) // ORT session name, path to onnx model
-        LDSP_log("unable to setup ortModel");
+  // Initialize ONNX Runtime Model Wrapper
+  std::string modelPath = "./"+modelName+"."+modelType;
+  if (!ortModel.setup("session1", modelPath)) // ORT session name, path to onnx model
+    LDSP_log("unable to setup ortModel");
 
 
-    // for sine
-    inverseSampleRate = 1.0 / context->audioSampleRate;
-	phase = 0.0;
+  // for sine
+  inverseSampleRate = 1.0 / context->audioSampleRate;
+  phase = 0.0;
 
-    return true;
+  return true;
 }
 
-void render(LDSPcontext *context, void *userData) 
+void render(LDSPcontext *context, void *userData)
 {
-    for(int n=0; n<context->audioFrames; n++) 
+  for(int n=0; n<context->audioFrames; n++)
+  {
+
+    if( (n%32) == 0)
     {
+      input[0] = 0.5; // any number
 
-        if( (n%32) == 0)
-        {
-            input[0] = 0.5; // any number
-            
-            // Run the model
-            ortModel.run(input, output); // we ignore the output
-        }
+      // Run the model
+      ortModel.run(input, output); // we ignore the output
+    }
 
-        // generate sine wave
-		float out = amplitude * sinf(phase);
-		phase += 2.0f * (float)M_PI * frequency * inverseSampleRate;
-		while(phase > 2.0f *M_PI)
-			phase -= 2.0f * (float)M_PI;
-		
-		for(int chn=0; chn<context->audioOutChannels; chn++)
-            audioWrite(context, n, chn, out);
+    // generate sine wave
+    float out = amplitude * sinf(phase);
+    phase += 2.0f * (float)M_PI * frequency * inverseSampleRate;
+    while(phase > 2.0f *M_PI)
+      phase -= 2.0f * (float)M_PI;
+
+    for(int chn=0; chn<context->audioOutChannels; chn++)
+      audioWrite(context, n, chn, out);
   }
 }
 
-void cleanup(LDSPcontext *context, void *userData) {}
+void cleanup(LDSPcontext *context, void *userData)
+{
+  ortModel.cleanup();
+}

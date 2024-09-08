@@ -4,10 +4,6 @@
 #include <sstream>
 #include <jni.h>
 
-//VIC
-//TODO
-// use readFile in Libraries/AudioFile/AudioFileUtilities.cpp:getSamples) and anywhere else it's needed
-
 // Global references for JNI
 extern JavaVM* g_JavaVM;
 extern jobject g_NativeLDSPliteInstance;

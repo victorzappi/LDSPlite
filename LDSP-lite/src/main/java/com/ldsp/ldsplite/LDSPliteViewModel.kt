@@ -54,49 +54,73 @@ class LDSPliteViewModel : ViewModel() {
   var LDSPlite: LDSPlite? = null
     set(value) {
       field = value
-      applyParameters()
+      applySliders()
     }
 
-  private val _frequency = MutableLiveData(300f)
+  private val _frequency = MutableLiveData(0f)
   val frequency: LiveData<Float>
     get() {
       return _frequency
     }
   private val frequencyRange = 40f..3000f
 
-  private val _volume = MutableLiveData(-24f)
-  val volume: LiveData<Float>
+  private val _slider0 = MutableLiveData(0f)
+  val slider0: LiveData<Float>
     get() {
-      return _volume
+      return slider0
     }
-  val volumeRange = (-60f)..0f
+  private val _slider1 = MutableLiveData(0f)
+  val slider1: LiveData<Float>
+    get() {
+      return slider1
+    }
+  private val _slider2 = MutableLiveData(0f)
+  val slider2: LiveData<Float>
+    get() {
+      return slider2
+    }
+  private val _slider3 = MutableLiveData(0f)
+  val slider3: LiveData<Float>
+    get() {
+      return slider3
+    }
 
-  private var wavetable = Wavetable.SINE
 
-  /**
-   * @param frequencySliderPosition slider position in [0, 1] range
-   */
-  fun setFrequencySliderPosition(frequencySliderPosition: Float) {
-    val frequencyInHz = frequencyInHzFromSliderPosition(frequencySliderPosition)
-    _frequency.value = frequencyInHz
+  fun setSlider0(value: Float) {
+    _slider0.value = value
     viewModelScope.launch {
-      LDSPlite?.setFrequency(frequencyInHz)
+      LDSPlite?.setSlider0(value)
     }
   }
 
-  fun setVolume(volumeInDb: Float) {
-    _volume.value = volumeInDb
+  fun setSlider1(value: Float) {
+    _slider1.value = value
     viewModelScope.launch {
-      LDSPlite?.setVolume(volumeInDb)
+      LDSPlite?.setSlider1(value)
     }
   }
 
-  fun setWavetable(newWavetable: Wavetable) {
-    wavetable = newWavetable
+  fun setSlider2(value: Float) {
+    _slider2.value = value
     viewModelScope.launch {
-      LDSPlite?.setWavetable(newWavetable)
+      LDSPlite?.setSlider2(value)
     }
   }
+
+  fun setSlider3(value: Float) {
+    _slider3.value = value
+    viewModelScope.launch {
+      LDSPlite?.setSlider3(value)
+    }
+  }
+
+
+  val setSliderFunctions: Array<(Float) -> Unit> = arrayOf(
+    ::setSlider0,
+    ::setSlider1,
+    ::setSlider2,
+    ::setSlider3
+  )
 
   private suspend fun ensureAudioPermissionGranted(): Boolean {
     if (audioPermissionGranted.value == true) {
@@ -131,23 +155,13 @@ class LDSPliteViewModel : ViewModel() {
         if (LDSPlite?.isPlaying() == true) {
           LDSPlite?.stop()
         } else {
-          LDSPlite?.play()
+          LDSPlite?.start()
         }
         // Only when the synthesizer changed its state, update the button label.
-        updatePlayButtonLabel()
+        updateStartButtonLabel()
       }
     }
 
-  }
-
-  private fun frequencyInHzFromSliderPosition(sliderPosition: Float): Float {
-    val rangePosition = linearToExponential(sliderPosition)
-    return valueFromRangePosition(frequencyRange, rangePosition)
-  }
-
-  fun sliderPositionFromFrequencyInHz(frequencyInHz: Float): Float {
-    val rangePosition = rangePositionFromValue(frequencyRange, frequencyInHz)
-    return exponentialToLinear(rangePosition)
   }
 
   companion object LinearToExponentialConverter {
@@ -189,27 +203,29 @@ class LDSPliteViewModel : ViewModel() {
     }
   }
 
-  private val _playButtonLabel = MutableLiveData(R.string.play)
-  val playButtonLabel: LiveData<Int>
+  private val _startButtonLabel = MutableLiveData(R.string.start)
+  val startButtonLabel: LiveData<Int>
     get() {
-      return _playButtonLabel
+      return _startButtonLabel
     }
 
-  fun applyParameters() {
+  fun applySliders() {
     viewModelScope.launch {
-      LDSPlite?.setFrequency(frequency.value!!)
-      LDSPlite?.setVolume(volume.value!!)
-      LDSPlite?.setWavetable(wavetable)
-      updatePlayButtonLabel()
+      LDSPlite?.setSlider0(_slider0.value!!)
+      LDSPlite?.setSlider1(_slider1.value!!)
+      LDSPlite?.setSlider2(_slider2.value!!)
+      LDSPlite?.setSlider3(_slider3.value!!)
+
+      updateStartButtonLabel()
     }
   }
 
-  private fun updatePlayButtonLabel() {
+  private fun updateStartButtonLabel() {
     viewModelScope.launch {
       if (LDSPlite?.isPlaying() == true) {
-        _playButtonLabel.value = R.string.stop
+        _startButtonLabel.value = R.string.stop
       } else {
-        _playButtonLabel.value = R.string.play
+        _startButtonLabel.value = R.string.start
       }
     }
   }

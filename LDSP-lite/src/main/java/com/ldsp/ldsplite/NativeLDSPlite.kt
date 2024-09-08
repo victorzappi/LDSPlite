@@ -12,12 +12,14 @@ class NativeLDSPlite(context: Context) : LDSPlite, DefaultLifecycleObserver {
   private val synthesizerMutex = Object()
   private external fun create(): Long
   private external fun delete(synthesizerHandle: Long)
-  private external fun play(synthesizerHandle: Long)
+  private external fun start(synthesizerHandle: Long)
   private external fun stop(synthesizerHandle: Long)
   private external fun isPlaying(synthesizerHandle: Long): Boolean
-  private external fun setFrequency(synthesizerHandle: Long, frequencyInHz: Float)
-  private external fun setVolume(synthesizerHandle: Long, amplitudeInDb: Float)
-  private external fun setWavetable(synthesizerHandle: Long, wavetable: Int)
+  private external fun setSlider0(synthesizerHandle: Long, value: Float)
+  private external fun setSlider1(synthesizerHandle: Long, value: Float)
+  private external fun setSlider2(synthesizerHandle: Long, value: Float)
+  private external fun setSlider3(synthesizerHandle: Long, value: Float)
+
   private external fun storeInstanceInNative(instance: NativeLDSPlite)
   private external fun storeContextInNative(context: Context)
   private external fun storeClassLoader(classLoader: ClassLoader)
@@ -27,7 +29,7 @@ class NativeLDSPlite(context: Context) : LDSPlite, DefaultLifecycleObserver {
     // Store the instance in the native code when this object is created
     storeInstanceInNative(this)
     storeContextInNative(context)
-    storeClassLoader(this.javaClass.classLoader)
+    storeClassLoader(this.javaClass.classLoader) //VIC this triggers warning: Type mismatch: inferred type is ClassLoader? but ClassLoader was expected
   }
 
   companion object {
@@ -77,10 +79,10 @@ class NativeLDSPlite(context: Context) : LDSPlite, DefaultLifecycleObserver {
 
 
 
-  override suspend fun play() = withContext(Dispatchers.Default) {
+  override suspend fun start() = withContext(Dispatchers.Default) {
     synchronized(synthesizerMutex) {
       createNativeHandleIfNotExists()
-      play(synthesizerHandle)
+      start(synthesizerHandle)
     }
   }
 
@@ -98,24 +100,31 @@ class NativeLDSPlite(context: Context) : LDSPlite, DefaultLifecycleObserver {
     }
   }
 
-  override suspend fun setFrequency(frequencyInHz: Float) = withContext(Dispatchers.Default) {
+  override suspend fun setSlider0(value: Float) = withContext(Dispatchers.Default) {
     synchronized(synthesizerMutex) {
       createNativeHandleIfNotExists()
-      setFrequency(synthesizerHandle, frequencyInHz)
+      setSlider0(synthesizerHandle, value)
     }
   }
 
-  override suspend fun setVolume(volumeInDb: Float) = withContext(Dispatchers.Default) {
+  override suspend fun setSlider1(value: Float) = withContext(Dispatchers.Default) {
     synchronized(synthesizerMutex) {
       createNativeHandleIfNotExists()
-      setVolume(synthesizerHandle, volumeInDb)
+      setSlider1(synthesizerHandle, value)
     }
   }
 
-  override suspend fun setWavetable(wavetable: Wavetable) = withContext(Dispatchers.Default) {
+  override suspend fun setSlider2(value: Float) = withContext(Dispatchers.Default) {
     synchronized(synthesizerMutex) {
       createNativeHandleIfNotExists()
-      setWavetable(synthesizerHandle, wavetable.ordinal)
+      setSlider2(synthesizerHandle, value)
+    }
+  }
+
+  override suspend fun setSlider3(value: Float) = withContext(Dispatchers.Default) {
+    synchronized(synthesizerMutex) {
+      createNativeHandleIfNotExists()
+      setSlider3(synthesizerHandle, value)
     }
   }
 

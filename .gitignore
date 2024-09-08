@@ -35,4 +35,12 @@ assets/*
 **/LDSPlite-RTNeural
 
 # Temporary local projects
-_projects/
+**/_projects/
+
+# Android app
+# Ignore everything in the assets folder
+LDSP-lite/src/main/assets/*
+# Except the resources folder
+!LDSP-lite/src/main/assets/resources/
+# Ensure that all contents within the resources folder are tracked
+!LDSP-lite/src/main/assets/resources/**

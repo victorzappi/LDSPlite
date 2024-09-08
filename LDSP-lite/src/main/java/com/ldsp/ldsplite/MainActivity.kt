@@ -1,30 +1,24 @@
 package com.ldsp.ldsplite
 
+//import android.util.Log
 import android.Manifest
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.os.Bundle
-//import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.VolumeMute
-import androidx.compose.material.icons.filled.VolumeUp
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ldsp.ldsplite.ui.theme.LDSPliteTheme
@@ -117,7 +111,7 @@ class MainActivity : ComponentActivity() {
   override fun onResume() {
     //Log.d("MainActivity", ">>>>>>onResume() called")
     super.onResume()
-    ldspViewModel.applyParameters()
+    ldspViewModel.applySliders()
   }
 }
 
@@ -131,13 +125,48 @@ fun LDSPliteApp(
     horizontalAlignment = Alignment.CenterHorizontally,
     verticalArrangement = Arrangement.Top,
   ) {
-    WavetableSelectionPanel(modifier, ldspViewModel)
-    ControlsPanel(modifier, ldspViewModel)
+    ControlPanel(modifier, ldspViewModel)
+    StartPanel(modifier, ldspViewModel)
   }
 }
 
 @Composable
-private fun ControlsPanel(
+private fun ControlPanel(
+  modifier: Modifier,
+  ldspViewModel: LDSPliteViewModel
+) {
+  Row(
+    modifier = modifier
+      .fillMaxWidth()
+      .fillMaxHeight(0.7f),
+    horizontalArrangement = Arrangement.SpaceEvenly,
+    verticalAlignment = Alignment.CenterVertically
+  ) {
+    // First column with two sliders
+    Column(
+      modifier = modifier.weight(1f), // Equally distribute space between the two columns
+      verticalArrangement = Arrangement.SpaceEvenly,
+      horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+      LDSPslider(modifier, ldspViewModel, 0)
+      LDSPslider(modifier, ldspViewModel, 1)
+    }
+
+    // Second column with two sliders
+    Column(
+      modifier = modifier.weight(1f), // Equally distribute space between the two columns
+      verticalArrangement = Arrangement.SpaceEvenly,
+      horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+      LDSPslider(modifier, ldspViewModel, 2)
+      LDSPslider(modifier, ldspViewModel, 3)
+    }
+  }
+}
+
+
+@Composable
+private fun StartPanel(
   modifier: Modifier,
   ldspViewModel: LDSPliteViewModel
 ) {
@@ -152,227 +181,106 @@ private fun ControlsPanel(
       modifier = modifier.fillMaxWidth(0.7f),
       horizontalAlignment = Alignment.CenterHorizontally
     ) {
-      PitchControl(modifier, ldspViewModel)
-      PlayControl(modifier, ldspViewModel)
-    }
-    Column(
-      verticalArrangement = Arrangement.Center,
-      horizontalAlignment = Alignment.CenterHorizontally,
-      modifier = modifier
-        .fillMaxWidth()
-        .fillMaxHeight()
-    ) {
-      VolumeControl(modifier, ldspViewModel)
+      StartBUtton(modifier, ldspViewModel)
     }
   }
 }
 
+//TODO re-instate updated of the slider coming from the view model
+// then
+// update the sliders with the potential initial values set in render.cpp setup() function
+// via new method LDSPlite::propagateSliderX()
 @Composable
-private fun PlayControl(modifier: Modifier, ldspViewModel: LDSPliteViewModel) {
+private fun LDSPslider(
+  modifier: Modifier,
+  ldspViewModel: LDSPliteViewModel,
+  index: Int
+) {
+  // Get the function references from the ViewModel
+  val selectedSetParamFunc = ldspViewModel.setSliderFunctions[index]
+
+  val initialSliderPosition = 0f
+
+  // Use a rememberSaveable state to manage the slider position locally
+  val sliderPosition = rememberSaveable {
+    mutableStateOf(initialSliderPosition)
+  }
+
+  // When the slider position changes, update both the local state and the ViewModel
+  LDSPsliderContent(
+    modifier = modifier,
+    value = sliderPosition.value,
+    onValueChange = {
+      sliderPosition.value = it
+      selectedSetParamFunc(it) // Update the ViewModel
+    },
+    index = index
+  )
+}
+
+@Composable
+private fun LDSPsliderContent(
+  modifier: Modifier,
+  value: Float,
+  onValueChange: (Float) -> Unit,
+  index: Int
+) {
+  // Update the slider label with the current index and value
+  val sliderLabel = stringResource(R.string.param, index, value)
+  Text(sliderLabel, modifier = modifier)
+  Slider(
+    modifier = modifier,
+    value = value,
+    onValueChange = onValueChange,
+    valueRange = 0F..1F
+  )
+}
+
+
+@Composable
+private fun StartBUtton(modifier: Modifier, ldspViewModel: LDSPliteViewModel) {
   // The label of the start button is now an observable state, an instance of State<Int?>.
   // State<Int?> is used because the label is the id value of the resource string.
   // Thanks to the fact that the composable observes the label,
   // the composable will be recomposed (redrawn) when the observed state changes.
-  val playButtonLabel = ldspViewModel.playButtonLabel.observeAsState()
+  val startButtonLabel = ldspViewModel.startButtonLabel.observeAsState()
 
-  PlayControlContent(modifier = modifier,
+  StartButtonContent(modifier = modifier,
     // onClick handler now simply notifies the ViewModel that it has been clicked
     onClick = {
       ldspViewModel.playClicked()
     },
-    // playButtonLabel will never be null; if it is, then we have a serious implementation issue
-    buttonLabel = stringResource(playButtonLabel.value!!))
+    // startButtonLabel will never be null; if it is, then we have a serious implementation issue
+    buttonLabel = stringResource(startButtonLabel.value!!))
 }
 
 @Composable
-private fun PlayControlContent(modifier: Modifier, onClick: () -> Unit, buttonLabel: String) {
+private fun StartButtonContent(modifier: Modifier, onClick: () -> Unit, buttonLabel: String) {
   Button(modifier = modifier,
     onClick = onClick) {
     Text(buttonLabel)
   }
 }
 
-@Composable
-private fun PitchControl(
-  modifier: Modifier,
-  ldspViewModel: LDSPliteViewModel
-) {
-  // if the frequency changes, recompose this composable
-  val frequency = ldspViewModel.frequency.observeAsState()
-  // the slider position state is hoisted by this composable; no need to embed it into
-  // the ViewModel, which ideally, shouldn't be aware of the UI.
-  // When the slider position changes, this composable will be recomposed as we explained in
-  // the UI tutorial.
-  val sliderPosition = rememberSaveable {
-    mutableStateOf(
-      // we use the ViewModel's convenience function to get the initial slider position
-      ldspViewModel.sliderPositionFromFrequencyInHz(frequency.value!!)
-    )
-  }
 
-  PitchControlContent(
-    modifier = modifier,
-    pitchControlLabel = stringResource(R.string.frequency),
-    value = sliderPosition.value,
-    // on slider position change, update the slider position and the ViewModel
-    onValueChange = {
-      sliderPosition.value = it
-      ldspViewModel.setFrequencySliderPosition(it)
-    },
-    // this range is now [0, 1] because the ViewModel is responsible for calculating the frequency
-    // out of the slider position
-    valueRange = 0F..1F,
-    // this label could be moved into the ViewModel but it doesn't have to be because this
-    // composable will anyway be recomposed on a frequency change
-    frequencyValueLabel = stringResource(R.string.frequency_value, frequency.value!!)
-  )
-}
+//@Preview(showBackground = true, device = Devices.AUTOMOTIVE_1024p, widthDp = 1024, heightDp = 720)
+//@Composable
+//fun LDSPlitePreview() {
+//  LDSPliteTheme {
+//    LDSPliteApp(Modifier, LDSPliteViewModel())
+//  }
+//}
 
-@Composable
-private fun PitchControlContent(
-  modifier: Modifier,
-  pitchControlLabel: String,
-  value: Float,
-  onValueChange: (Float) -> Unit,
-  valueRange: ClosedFloatingPointRange<Float>,
-  frequencyValueLabel: String
-) {
-  Text(pitchControlLabel, modifier = modifier)
-  Slider(modifier = modifier, value = value, onValueChange = onValueChange, valueRange = valueRange)
-  Row(
-    modifier = modifier,
-    horizontalArrangement = Arrangement.Center
-  ) {
-    Text(modifier = modifier, text = frequencyValueLabel)
-  }
-}
-
-@Composable
-private fun VolumeControl(modifier: Modifier, ldspViewModel: LDSPliteViewModel) {
-  // volume value is now an observable state; that means that the composable will be
-  // recomposed (redrawn) when the observed state changes.
-  val volume = ldspViewModel.volume.observeAsState()
-
-  VolumeControlContent(
-    modifier = modifier,
-    // volume value should never be null; if it is, there's a serious implementation issue
-    volume = volume.value!!,
-    // use the value range from the ViewModel
-    volumeRange = ldspViewModel.volumeRange,
-    // on volume slider change, just update the ViewModel
-    onValueChange = { ldspViewModel.setVolume(it) })
-}
-
-@Composable
-private fun VolumeControlContent(
-  modifier: Modifier,
-  volume: Float,
-  volumeRange: ClosedFloatingPointRange<Float>,
-  onValueChange: (Float) -> Unit
-) {
-  // The volume slider should take around 1/4 of the screen height
-  val screenHeight = LocalConfiguration.current.screenHeightDp
-  val sliderHeight = screenHeight / 4
-
-  Icon(imageVector = Icons.Filled.VolumeUp, contentDescription = null)
-  Column(
-    modifier = modifier
-      .fillMaxWidth()
-      .fillMaxHeight(0.8f)
-      .offset(y = 40.dp),
-    horizontalAlignment = Alignment.CenterHorizontally,
-    verticalArrangement = Arrangement.SpaceBetween
-  )
-  {
-    Slider(
-      value = volume,
-      onValueChange = onValueChange,
-      modifier = modifier
-        .width(sliderHeight.dp)
-        .rotate(270f),
-      valueRange = volumeRange
-    )
-  }
-  Icon(imageVector = Icons.Filled.VolumeMute, contentDescription = null)
-}
-
-@Composable
-private fun WavetableSelectionPanel(
-  modifier: Modifier,
-  ldspViewModel: LDSPliteViewModel
-) {
-  Row(
-    modifier = modifier
-      .fillMaxWidth()
-      .fillMaxHeight(0.5f),
-    horizontalArrangement = Arrangement.SpaceEvenly,
-    verticalAlignment = Alignment.CenterVertically
-  ) {
-    Column(
-      modifier = modifier
-        .fillMaxWidth()
-        .fillMaxHeight(),
-      verticalArrangement = Arrangement.SpaceEvenly,
-      horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-      Text(stringResource(R.string.wavetable))
-      WavetableSelectionButtons(modifier, ldspViewModel)
-    }
-  }
-}
-
-@Composable
-private fun WavetableSelectionButtons(
-  modifier: Modifier,
-  ldspViewModel: LDSPliteViewModel
-) {
-  Row(
-    modifier = modifier.fillMaxWidth(),
-    horizontalArrangement = Arrangement.SpaceEvenly
-  ) {
-    for (wavetable in Wavetable.values()) {
-      WavetableButton(
-        modifier = modifier,
-        // update the ViewModel when the given wavetable is clicked
-        onClick = {
-          ldspViewModel.setWavetable(wavetable)
-        },
-        // set the label to the resource string that corresponds to the wavetable
-        label = stringResource(wavetable.toResourceString()),
-      )
-    }
-  }
-}
-
-@Composable
-private fun WavetableButton(
-  modifier: Modifier,
-  onClick: () -> Unit,
-  label: String,
-) {
-  Button(modifier = modifier, onClick = onClick) {
-    Text(label)
-  }
-}
 
 @Preview(showBackground = true, device = Devices.AUTOMOTIVE_1024p, widthDp = 1024, heightDp = 720)
 @Composable
 fun LDSPlitePreview() {
-  LDSPliteTheme {
-    LDSPliteApp(Modifier, LDSPliteViewModel())
+  // Mocking the ViewModel for preview purposes
+  val mockViewModel = LDSPliteViewModel().apply {
+    // You can initialize any required state here if needed for the preview
   }
-}
 
-@Preview(showBackground = true, widthDp = 100, heightDp = 200)
-@Composable
-fun VolumeControlPreview() {
-  Column(
-    verticalArrangement = Arrangement.Top,
-    horizontalAlignment = Alignment.CenterHorizontally,
-    modifier = Modifier
-      .fillMaxWidth()
-      .fillMaxHeight()
-  ) {
-    VolumeControl(modifier = Modifier, ldspViewModel = LDSPliteViewModel())
+  LDSPliteTheme {
+    LDSPliteApp(Modifier, mockViewModel)
   }
 }

@@ -2,44 +2,12 @@ package com.ldsp.ldsplite
 
 import androidx.annotation.StringRes
 
-enum class Wavetable {
-  SINE {
-    @StringRes
-    override fun toResourceString(): Int {
-      return R.string.sine
-    }
-  },
-
-  TRIANGLE {
-    @StringRes
-    override fun toResourceString(): Int {
-      return R.string.triangle
-    }
-  },
-
-  SQUARE {
-    @StringRes
-    override fun toResourceString(): Int {
-      return R.string.square
-    }
-  },
-
-  SAW {
-    @StringRes
-    override fun toResourceString(): Int {
-      return R.string.sawtooth
-    }
-  };
-
-  @StringRes
-  abstract fun toResourceString(): Int
-}
-
 interface LDSPlite {
-  suspend fun play()
+  suspend fun start()
   suspend fun stop()
   suspend fun isPlaying() : Boolean
-  suspend fun setFrequency(frequencyInHz: Float)
-  suspend fun setVolume(volumeInDb: Float)
-  suspend fun setWavetable(wavetable: Wavetable)
+  suspend fun setSlider0(value: Float)
+  suspend fun setSlider1(value: Float)
+  suspend fun setSlider2(value: Float)
+  suspend fun setSlider3(value: Float)
 }

@@ -19,30 +19,40 @@ namespace ldsplite {
 static std::atomic<int> instances{0};
 #endif
 
+//VIC this is a terrible solution to share internal context with sensors.cpp as extern like in LDSP
+LDSPinternalContext intContext;
+
 OboeAudioEngine::OboeAudioEngine(LDSPlite *ldspLite) {
+  _slider0.store(0);
+  _slider1.store(0);
+  _slider2.store(0);
+  _slider3.store(0);
+
+  //TODO read some of these from setttings, passed by LDSPlite
   intContext.audioIn = nullptr;
   intContext.audioOut = nullptr;
   intContext.audioFrames = 0;
   intContext.audioInChannels = 0;
   intContext.audioOutChannels = 0;
   intContext.audioSampleRate = 0;
+  intContext.sliders = _sliders;
   intContext.ldspLite = ldspLite;
 
   //VIC incapsulate internal pointer
   userContext = (LDSPcontext*)&intContext;
 
-  setMNumInputBurstsCushion(0);
+  _fullDuplex = true;
+  _slidersOff = false;
 
-  LDSP_log("OboeAudioEngine created. Instances count: %d", ++instances);
+  setMNumInputBurstsCushion(0);
 }
 
 OboeAudioEngine::~OboeAudioEngine() {
-  LDSP_log("OboeAudioEngine destroyed. Instances count: %d", --instances);
   OboeAudioEngine::stop();
 }
 
-Result OboeAudioEngine::start() {
-  LDSP_log("OboeAudioEngine::start()");
+void OboeAudioEngine::init() {
+  LDSP_log("OboeAudioEngine::init()");
   bool isInput;
 
   isInput = false;
@@ -50,15 +60,18 @@ Result OboeAudioEngine::start() {
 
   if(_fullDuplex) {
     isInput = true;
+    createStream(isInput);
   }
-  createStream(isInput);
 
   //VIC
   intContext.projectName = PRJ_NAME;
   intContext.audioSampleRate = (float) getOutputStream()->getSampleRate();
   intContext.audioInChannels = channelCount;
   intContext.audioOutChannels = channelCount;
+  intContext.audioFrames = getOutputStream()->getFramesPerCallback();
+}
 
+Result OboeAudioEngine::start() {
   setup(userContext, nullptr);
 
   if(_fullDuplex)
@@ -80,8 +93,6 @@ Result OboeAudioEngine::start() {
 
 Result OboeAudioEngine::stop() {
   LDSP_log("OboeAudioEngine::stop()");
-
-  cleanup(userContext, nullptr);
 
   Result result_out = Result::OK;
   Result result_in = Result::OK;
@@ -113,6 +124,8 @@ Result OboeAudioEngine::stop() {
       return result_in;
   }
 
+  cleanup(userContext, nullptr);
+
   return Result::OK;
 }
 
@@ -126,11 +139,7 @@ DataCallbackResult OboeAudioEngine::onAudioReady(oboe::AudioStream* outputStream
   else {
     //LDSP_log("out frames: %d\n", framesCount);
 
-    intContext.audioFrames = framesCount;
-    intContext.audioIn = silentInBuff;
-    intContext.audioOut = (float *)audioData;
-
-    render(userContext, nullptr);
+    callRender(framesCount, silentInBuff, (float *)audioData);
 
     return DataCallbackResult::Continue;
   }
@@ -142,12 +151,7 @@ DataCallbackResult OboeAudioEngine::onBothStreamsReady(float *inputData,
                                                        int   numOutputFrames) {
 
   //LDSP_log("in frames: %d, out frames: %d\n", numInputFrames, numOutputFrames);
-
-  intContext.audioFrames = numOutputFrames;
-  intContext.audioIn = inputData;
-  intContext.audioOut = outputData;
-
-  render(userContext, nullptr);
+  callRender(numOutputFrames, inputData, outputData);
 
   return DataCallbackResult::Continue;
 };
@@ -172,8 +176,8 @@ Result OboeAudioEngine::createStream(bool isInput) {
       ->setFormatConversionAllowed(true)
       ;
 
-  if(_samplingRate!=0)
-    builder.setSampleRate(_samplingRate); // otherwise, native samplerate is set automatically
+  if(_sampleRate!=0)
+    builder.setSampleRate(_sampleRate); // otherwise, native samplerate is set automatically
 
   if(!isInput) {
     builder.setBufferCapacityInFrames(2 * _bufferSize);
@@ -202,6 +206,8 @@ Result OboeAudioEngine::createStream(bool isInput) {
     oboeStream->setBufferSizeInFrames(getOutputStream()->getBufferSizeInFrames());
 //    oboeStream->setBufferSizeInFrames(oboeStream->getFramesPerBurst() * 4);
   }
+  LDSP_log("____output buffer capacity %d", oboeStream->getBufferCapacityInFrames());
+
 
   if(!isInput) {
     LDSP_log("____output buffer capacity %d", oboeStream->getBufferCapacityInFrames());

@@ -82,7 +82,7 @@ Java_com_ldsp_ldsplite_NativeLDSPlite_delete(
 }
 
 JNIEXPORT void JNICALL
-Java_com_ldsp_ldsplite_NativeLDSPlite_play(
+Java_com_ldsp_ldsplite_NativeLDSPlite_start(
     JNIEnv* env,
     jobject obj,
     jlong synthesizerHandle) {
@@ -134,66 +134,6 @@ Java_com_ldsp_ldsplite_NativeLDSPlite_isPlaying(
   }
 
   return synthesizer->isStarted();
-}
-
-JNIEXPORT void JNICALL
-Java_com_ldsp_ldsplite_NativeLDSPlite_setFrequency(
-    JNIEnv* env,
-    jobject obj,
-    jlong synthesizerHandle,
-    jfloat frequencyInHz) {
-  auto* synthesizer =
-      reinterpret_cast<ldsplite::LDSPlite*>(
-          synthesizerHandle);
-  const auto nativeFrequency = static_cast<float>(frequencyInHz);
-
-  if (synthesizer) {
-    //synthesizer->setFrequency(nativeFrequency);
-  } else {
-    LDSP_log(
-        "Synthesizer not created. Please, create the synthesizer first by "
-        "calling create().");
-  }
-}
-
-JNIEXPORT void JNICALL
-Java_com_ldsp_ldsplite_NativeLDSPlite_setVolume(
-    JNIEnv* env,
-    jobject obj,
-    jlong synthesizerHandle,
-    jfloat volumeInDb) {
-  auto* synthesizer =
-      reinterpret_cast<ldsplite::LDSPlite*>(
-          synthesizerHandle);
-  const auto nativeVolume = static_cast<float>(volumeInDb);
-
-  if (synthesizer) {
-    //synthesizer->setVolume(nativeVolume);
-  } else {
-    LDSP_log(
-        "Synthesizer not created. Please, create the synthesizer first by "
-        "calling create().");
-  }
-}
-
-JNIEXPORT void JNICALL
-Java_com_ldsp_ldsplite_NativeLDSPlite_setWavetable(
-        JNIEnv* env,
-        jobject obj,
-        jlong synthesizerHandle,
-        jint wavetable) {
-    auto* synthesizer =
-            reinterpret_cast<ldsplite::LDSPlite*>(
-                    synthesizerHandle);
-    //const auto nativeWavetable = static_cast<ldsplite::Wavetable>(wavetable);
-
-    if (synthesizer) {
-        //synthesizer->setWavetable(nativeWavetable);
-    } else {
-        LDSP_log(
-                "Synthesizer not created. Please, create the synthesizer first by "
-                "calling create().");
-    }
 }
 
 JNIEXPORT jbyteArray JNICALL Java_com_ldsp_ldsplite_NativeLDSPlite_readFileFromAssets(
@@ -271,4 +211,85 @@ JNIEXPORT jbyteArray JNICALL Java_com_ldsp_ldsplite_NativeLDSPlite_readFileFromA
 }
 }
 
+
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_ldsp_ldsplite_NativeLDSPlite_setSlider0(JNIEnv *env,
+                                                jobject thiz,
+                                                jlong synthesizerHandle,
+                                                jfloat value) {
+  auto* synthesizer =
+      reinterpret_cast<ldsplite::LDSPlite*>(
+          synthesizerHandle);
+  const auto nativeValue = static_cast<float>(value);
+
+  if (synthesizer) {
+    synthesizer->setSlider0(nativeValue);
+  } else {
+    LDSP_log(
+        "Synthesizer not created. Please, create the synthesizer first by "
+        "calling create().");
+  }
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_ldsp_ldsplite_NativeLDSPlite_setSlider1(JNIEnv *env,
+                                                jobject thiz,
+                                                jlong synthesizerHandle,
+                                                jfloat value) {
+  auto* synthesizer =
+      reinterpret_cast<ldsplite::LDSPlite*>(
+          synthesizerHandle);
+  const auto nativeValue = static_cast<float>(value);
+
+  if (synthesizer) {
+    synthesizer->setSlider1(nativeValue);
+  } else {
+    LDSP_log(
+        "Synthesizer not created. Please, create the synthesizer first by "
+        "calling create().");
+  }
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_ldsp_ldsplite_NativeLDSPlite_setSlider2(JNIEnv *env,
+                                                jobject thiz,
+                                                jlong synthesizerHandle,
+                                                jfloat value) {
+  auto* synthesizer =
+      reinterpret_cast<ldsplite::LDSPlite*>(
+          synthesizerHandle);
+  const auto nativeValue = static_cast<float>(value);
+
+  if (synthesizer) {
+    synthesizer->setSlider2(nativeValue);
+  } else {
+    LDSP_log(
+        "Synthesizer not created. Please, create the synthesizer first by "
+        "calling create().");
+  }
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_ldsp_ldsplite_NativeLDSPlite_setSlider3(JNIEnv *env,
+                                                jobject thiz,
+                                                jlong synthesizerHandle,
+                                                jfloat value) {
+  auto* synthesizer =
+      reinterpret_cast<ldsplite::LDSPlite*>(
+          synthesizerHandle);
+  const auto nativeValue = static_cast<float>(value);
+
+  if (synthesizer) {
+    synthesizer->setSlider3(nativeValue);
+  } else {
+    LDSP_log(
+        "Synthesizer not created. Please, create the synthesizer first by "
+        "calling create().");
+  }
+}
 

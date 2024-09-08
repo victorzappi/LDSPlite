@@ -6,16 +6,17 @@ cmake_minimum_required(VERSION 3.18.1)
 project("ldsplite")
 
 #TODO
+# make GUI params loopback
 # change name to app
-# update examples/MachineLearning projects
 
 #---------------------------------------------------------------------------------------------------
 # Select current LDSP project directory
 # the starting location is where the current CMakeLists.txt file is
-#set(PRJ_DIR "examples/MachineLearning/RTNeural")
+#set(PRJ_DIR "_projects/ED_conditioned")
 set(PRJ_DIR "examples/Fundamentals/sine")
+#set(PRJ_DIR "examples/Fundamentals/passthrough")
 #set(PRJ_DIR "examples/Audio/sample_player")
-#set(PRJ_DIR "examples/Gui/sliders")
+#set(PRJ_DIR "examples/MachineLearning/RTNeural_conditioned")
 #---------------------------------------------------------------------------------------------------
 
 
