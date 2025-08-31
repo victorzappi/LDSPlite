@@ -1,12 +1,14 @@
 package com.ldsp.ldsplite
 
-//import android.util.Log
+import android.util.Log
 import android.Manifest
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.*
@@ -16,9 +18,11 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ldsp.ldsplite.ui.theme.LDSPliteTheme
@@ -51,7 +55,7 @@ class MainActivity : ComponentActivity() {
       LDSPliteTheme {
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colors.background) {
           // pass the ViewModel down the composables' hierarchy
-          LDSPliteApp(Modifier, ldspViewModel)
+          LDSPliteApp(Modifier, ldspViewModel, nativeLDSP)
         }
       }
     }
@@ -118,15 +122,30 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun LDSPliteApp(
   modifier: Modifier,
-  ldspViewModel: LDSPliteViewModel = viewModel()
+  ldspViewModel: LDSPliteViewModel = viewModel(),
+  nativeLDSP: NativeLDSPlite
 ) {
-  Column(
-    modifier = modifier.fillMaxSize(),
-    horizontalAlignment = Alignment.CenterHorizontally,
-    verticalArrangement = Arrangement.Top,
-  ) {
-    ControlPanel(modifier, ldspViewModel)
-    StartPanel(modifier, ldspViewModel)
+  Box(modifier = modifier.fillMaxSize()) {
+    // Your existing UI goes here, unchanged
+    Column(
+      modifier = Modifier.fillMaxSize(),
+      horizontalAlignment = Alignment.CenterHorizontally,
+      verticalArrangement = Arrangement.Top,
+    ) {
+      ControlPanel(Modifier, ldspViewModel)
+      StartPanel(Modifier, ldspViewModel)
+    }
+
+    // Touch surface overlays on top
+    AndroidView(
+      factory = { context ->
+        TouchSurfaceView(context).apply {
+          setNativeLDSP(nativeLDSP)
+          setBackgroundColor(Color.TRANSPARENT)  // Now make it invisible
+        }
+      },
+      modifier = Modifier.fillMaxSize()  // Full screen overlay
+    )
   }
 }
 
@@ -280,7 +299,11 @@ fun LDSPlitePreview() {
     // You can initialize any required state here if needed for the preview
   }
 
+  // Create a mock NativeLDSPlite for preview (won't actually work but allows preview)
+  val context = LocalContext.current
+  val mockNative = remember { NativeLDSPlite(context) }
+
   LDSPliteTheme {
-    LDSPliteApp(Modifier, mockViewModel)
+    LDSPliteApp(Modifier, mockViewModel, mockNative)
   }
 }

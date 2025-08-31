@@ -26,7 +26,7 @@ struct LDSPinitSettings {
   float samplerate;
   int captureOff;
   int sensorsOff;
-  int pareametersOff; //VIC LDSPlite only
+  int parametersOff; //VIC LDSPlite only
   int verbose;
 };
 

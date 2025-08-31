@@ -25,6 +25,23 @@ class NativeLDSPlite(context: Context) : LDSPlite, DefaultLifecycleObserver {
   private external fun storeClassLoader(classLoader: ClassLoader)
   external fun readFileFromAssets(context: Context, path: String): ByteArray
 
+  external fun updateTouch(
+    synthesizerHandle: Long,
+    slot: Int,
+    id: Int,
+    x: Float,
+    y: Float,
+    pressure: Float,
+    majAxis: Float,
+    minAxis: Float,
+    orientation: Float,
+    majWidth: Float,
+    minWidth: Float
+  )
+
+  external fun updateHover(synthesizerHandle: Long, slot: Int, hoverX: Float, hoverY: Float)
+  external fun clearTouch(synthesizerHandle: Long, slot: Int)
+  external fun setScreenResolution(synthesizerHandle: Long, width: Float, height: Float)
   init {
     // Store the instance in the native code when this object is created
     storeInstanceInNative(this)
@@ -134,5 +151,49 @@ class NativeLDSPlite(context: Context) : LDSPlite, DefaultLifecycleObserver {
 
     // create the synthesizer
     synthesizerHandle = create()
+  }
+
+  fun updateTouch(
+    slot: Int,
+    id: Int,
+    x: Float,
+    y: Float,
+    pressure: Float,
+    majAxis: Float,
+    minAxis: Float,
+    orientation: Float,
+    majWidth: Float,
+    minWidth: Float
+  ) {
+    synchronized(synthesizerMutex) {
+      if (synthesizerHandle != 0L) {
+        updateTouch(synthesizerHandle, slot, id, x, y, pressure,
+          majAxis, minAxis, orientation, majWidth, minWidth)
+      }
+    }
+  }
+
+  fun updateHover(slot: Int, hoverX: Float, hoverY: Float) {
+    synchronized(synthesizerMutex) {
+      if (synthesizerHandle != 0L) {
+        updateHover(synthesizerHandle, slot, hoverX, hoverY)
+      }
+    }
+  }
+
+  fun clearTouch(slot: Int) {
+    synchronized(synthesizerMutex) {
+      if (synthesizerHandle != 0L) {
+        clearTouch(synthesizerHandle, slot)
+      }
+    }
+  }
+
+  fun setScreenResolution(width: Float, height: Float) {
+    synchronized(synthesizerMutex) {
+      if (synthesizerHandle != 0L) {
+        setScreenResolution(synthesizerHandle, width, height)
+      }
+    }
   }
 }

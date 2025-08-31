@@ -32,7 +32,7 @@ void LDSPlite::start() {
   settings.captureOff = !_audioEngine->getFullDuplex();
 
   settings.sensorsOff = true;
-  settings.pareametersOff = false;
+  settings.parametersOff = false;
 
   settings.verbose = false;
 
