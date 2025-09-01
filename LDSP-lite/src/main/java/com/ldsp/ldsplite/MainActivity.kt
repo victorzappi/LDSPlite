@@ -144,7 +144,10 @@ fun LDSPliteApp(
           setBackgroundColor(Color.TRANSPARENT)  // Now make it invisible
         }
       },
-      modifier = Modifier.fillMaxSize()  // Full screen overlay
+//      modifier = Modifier.fillMaxSize()  // Full screen overlay
+      modifier = Modifier
+        .fillMaxWidth()
+        .fillMaxHeight(0.6f)  // Only cover top 60% of screen
     )
   }
 }

@@ -8,17 +8,17 @@ import kotlinx.coroutines.withContext
 
 class NativeLDSPlite(context: Context) : LDSPlite, DefaultLifecycleObserver {
 
-  private var synthesizerHandle: Long = 0
-  private val synthesizerMutex = Object()
+  private var ldspLiteHandle: Long = 0
+  private val ldspLiteMutex = Object()
   private external fun create(): Long
-  private external fun delete(synthesizerHandle: Long)
-  private external fun start(synthesizerHandle: Long)
-  private external fun stop(synthesizerHandle: Long)
-  private external fun isPlaying(synthesizerHandle: Long): Boolean
-  private external fun setSlider0(synthesizerHandle: Long, value: Float)
-  private external fun setSlider1(synthesizerHandle: Long, value: Float)
-  private external fun setSlider2(synthesizerHandle: Long, value: Float)
-  private external fun setSlider3(synthesizerHandle: Long, value: Float)
+  private external fun delete(ldspLiteHandle: Long)
+  private external fun start(ldspLiteHandle: Long)
+  private external fun stop(ldspLiteHanlde: Long)
+  private external fun isPlaying(ldspLiteHanlde: Long): Boolean
+  private external fun setSlider0(ldspLiteHanlde: Long, value: Float)
+  private external fun setSlider1(ldspLiteHanlde: Long, value: Float)
+  private external fun setSlider2(ldspLiteHanlde: Long, value: Float)
+  private external fun setSlider3(ldspLiteHanlde: Long, value: Float)
 
   private external fun storeInstanceInNative(instance: NativeLDSPlite)
   private external fun storeContextInNative(context: Context)
@@ -26,7 +26,7 @@ class NativeLDSPlite(context: Context) : LDSPlite, DefaultLifecycleObserver {
   external fun readFileFromAssets(context: Context, path: String): ByteArray
 
   external fun updateTouch(
-    synthesizerHandle: Long,
+    ldspLiteHanlde: Long,
     slot: Int,
     id: Int,
     x: Float,
@@ -39,9 +39,9 @@ class NativeLDSPlite(context: Context) : LDSPlite, DefaultLifecycleObserver {
     minWidth: Float
   )
 
-  external fun updateHover(synthesizerHandle: Long, slot: Int, hoverX: Float, hoverY: Float)
-  external fun clearTouch(synthesizerHandle: Long, slot: Int)
-  external fun setScreenResolution(synthesizerHandle: Long, width: Float, height: Float)
+  external fun updateHover(ldspLiteHanlde: Long, slot: Int, hoverX: Float, hoverY: Float)
+  external fun clearTouch(ldspLiteHanlde: Long, slot: Int)
+  external fun setScreenResolution(ldspLiteHanlde: Long, width: Float, height: Float)
   init {
     // Store the instance in the native code when this object is created
     storeInstanceInNative(this)
@@ -60,33 +60,33 @@ class NativeLDSPlite(context: Context) : LDSPlite, DefaultLifecycleObserver {
 
     //Log.d("NativeLDSPlite", "_________onResume() called")
 
-    synchronized(synthesizerMutex) {
+    synchronized(ldspLiteMutex) {
       createNativeHandleIfNotExists()
     }
   }
 
-//  override fun onPause(owner: LifecycleOwner) {
-//    super.onPause(owner)
-//    Log.d("NativeLDSPlite", "_________onPause() called")
-//  }
+  //  override fun onPause(owner: LifecycleOwner) {
+  //    super.onPause(owner)
+  //    Log.d("NativeLDSPlite", "_________onPause() called")
+  //  }
 
-//  override fun onStop(owner: LifecycleOwner) {
-//    super.onStop(owner)
-//
-//    //Log.d("NativeLDSPlite", "_________onStop() called")
-//
-//  }
+  //  override fun onStop(owner: LifecycleOwner) {
+  //    super.onStop(owner)
+  //
+  //    //Log.d("NativeLDSPlite", "_________onStop() called")
+  //
+  //  }
 
   override fun onDestroy(owner: LifecycleOwner) {
 
-    synchronized(synthesizerMutex) {
+    synchronized(ldspLiteMutex) {
 
-      if (synthesizerHandle == 0L)
+      if (ldspLiteHandle == 0L)
         return
 
-      // Destroy the synthesizer
-      delete(synthesizerHandle)
-      synthesizerHandle = 0L
+      // Destroy the LDSPlite
+      delete(ldspLiteHandle)
+      ldspLiteHandle = 0L
     }
 
     //Log.d("NativeLDSPlite", "_________onDestroy() called")
@@ -97,60 +97,60 @@ class NativeLDSPlite(context: Context) : LDSPlite, DefaultLifecycleObserver {
 
 
   override suspend fun start() = withContext(Dispatchers.Default) {
-    synchronized(synthesizerMutex) {
+    synchronized(ldspLiteMutex) {
       createNativeHandleIfNotExists()
-      start(synthesizerHandle)
+      start(ldspLiteHandle)
     }
   }
 
   override suspend fun stop() = withContext(Dispatchers.Default) {
-    synchronized(synthesizerMutex) {
+    synchronized(ldspLiteMutex) {
       createNativeHandleIfNotExists()
-      stop(synthesizerHandle)
+      stop(ldspLiteHandle)
     }
   }
 
   override suspend fun isPlaying(): Boolean = withContext(Dispatchers.Default) {
-    synchronized(synthesizerMutex) {
+    synchronized(ldspLiteMutex) {
       createNativeHandleIfNotExists()
-      return@withContext isPlaying(synthesizerHandle)
+      return@withContext isPlaying(ldspLiteHandle)
     }
   }
 
   override suspend fun setSlider0(value: Float) = withContext(Dispatchers.Default) {
-    synchronized(synthesizerMutex) {
+    synchronized(ldspLiteMutex) {
       createNativeHandleIfNotExists()
-      setSlider0(synthesizerHandle, value)
+      setSlider0(ldspLiteHandle, value)
     }
   }
 
   override suspend fun setSlider1(value: Float) = withContext(Dispatchers.Default) {
-    synchronized(synthesizerMutex) {
+    synchronized(ldspLiteMutex) {
       createNativeHandleIfNotExists()
-      setSlider1(synthesizerHandle, value)
+      setSlider1(ldspLiteHandle, value)
     }
   }
 
   override suspend fun setSlider2(value: Float) = withContext(Dispatchers.Default) {
-    synchronized(synthesizerMutex) {
+    synchronized(ldspLiteMutex) {
       createNativeHandleIfNotExists()
-      setSlider2(synthesizerHandle, value)
+      setSlider2(ldspLiteHandle, value)
     }
   }
 
   override suspend fun setSlider3(value: Float) = withContext(Dispatchers.Default) {
-    synchronized(synthesizerMutex) {
+    synchronized(ldspLiteMutex) {
       createNativeHandleIfNotExists()
-      setSlider3(synthesizerHandle, value)
+      setSlider3(ldspLiteHandle, value)
     }
   }
 
   private fun createNativeHandleIfNotExists() {
-    if (synthesizerHandle != 0L)
+    if (ldspLiteHandle != 0L)
       return
 
-    // create the synthesizer
-    synthesizerHandle = create()
+    // create the LDSPlite
+    ldspLiteHandle = create()
   }
 
   fun updateTouch(
@@ -165,34 +165,34 @@ class NativeLDSPlite(context: Context) : LDSPlite, DefaultLifecycleObserver {
     majWidth: Float,
     minWidth: Float
   ) {
-    synchronized(synthesizerMutex) {
-      if (synthesizerHandle != 0L) {
-        updateTouch(synthesizerHandle, slot, id, x, y, pressure,
+    synchronized(ldspLiteMutex) {
+      if (ldspLiteHandle != 0L) {
+        updateTouch(ldspLiteHandle, slot, id, x, y, pressure,
           majAxis, minAxis, orientation, majWidth, minWidth)
       }
     }
   }
 
   fun updateHover(slot: Int, hoverX: Float, hoverY: Float) {
-    synchronized(synthesizerMutex) {
-      if (synthesizerHandle != 0L) {
-        updateHover(synthesizerHandle, slot, hoverX, hoverY)
+    synchronized(ldspLiteMutex) {
+      if (ldspLiteHandle != 0L) {
+        updateHover(ldspLiteHandle, slot, hoverX, hoverY)
       }
     }
   }
 
   fun clearTouch(slot: Int) {
-    synchronized(synthesizerMutex) {
-      if (synthesizerHandle != 0L) {
-        clearTouch(synthesizerHandle, slot)
+    synchronized(ldspLiteMutex) {
+      if (ldspLiteHandle != 0L) {
+        clearTouch(ldspLiteHandle, slot)
       }
     }
   }
 
   fun setScreenResolution(width: Float, height: Float) {
-    synchronized(synthesizerMutex) {
-      if (synthesizerHandle != 0L) {
-        setScreenResolution(synthesizerHandle, width, height)
+    synchronized(ldspLiteMutex) {
+      if (ldspLiteHandle != 0L) {
+        setScreenResolution(ldspLiteHandle, width, height)
       }
     }
   }

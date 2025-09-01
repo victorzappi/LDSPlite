@@ -8,7 +8,7 @@
 
 #include <stdint.h>
 #include "LDSP_log.h"
-#include "LDSPlite.h"
+//#include "LDSPlite.h"
 #include "BelaUtilities.h"
 
 //VIC these are here to compatibility with LDSP original codebase
@@ -16,6 +16,10 @@
 #include <vector> // vector
 using std::string;
 using std::vector;
+
+namespace ldsplite {
+class LDSPlite;  // Forward declaration
+}
 
 //VIC this is a terrible kludge to keep the same API as LDSP...
 #define LDSP_requestStop() context->ldspLite->stop()
@@ -30,6 +34,14 @@ struct LDSPinitSettings {
   int verbose;
 };
 
+struct multiTouchInfo {
+  float screenResolution[2];
+  int touchSlots;
+  int touchAxisMax;
+  int touchWidthMax;
+  bool anyTouchSupported;
+};
+
 struct LDSPcontext {
   const float * const audioIn;
   float * const audioOut;
@@ -38,10 +50,12 @@ struct LDSPcontext {
   const uint32_t audioOutChannels;
   const float audioSampleRate;
   float *sensors;
+  const int * const ctrlInputs;
   const uint32_t sensorChannels;
   const bool * const sensorsSupported;
   const string * const sensorsDetails;
   const float controlSampleRate; // sensors and output devices
+  const multiTouchInfo * const mtInfo;
   const string projectName;
   float * const sliders;
   ldsplite::LDSPlite * const ldspLite;
@@ -62,6 +76,29 @@ enum sensorChannel {
   chn_sens_count
 };
 
+enum btnInputChannel {
+  chn_btn_power,
+  chn_btn_volUp,
+  chn_btn_volDown,
+  chn_btn_count
+};
+
+enum multiTouchInputChannel {
+  chn_mt_anyTouch,
+  chn_mt_x,
+  chn_mt_y,
+  chn_mt_majAxis,
+  chn_mt_minAxis,
+  chn_mt_orientation,
+  chn_mt_hoverX,
+  chn_mt_hoverY,
+  chn_mt_majWidth,
+  chn_mt_minWidth,
+  chn_mt_pressure,
+  chn_mt_id,
+  chn_mt_count
+};
+
 void LDSP_initSensors(LDSPinitSettings *settings);
 void LDSP_cleanupSensors();
 
@@ -77,6 +114,8 @@ void cleanup(LDSPcontext *context, void *userData);
 
 static inline float audioRead(LDSPcontext *context, int frame, int channel);
 static inline void audioWrite(LDSPcontext *context, int frame, int channel, float value);
+
+static inline int multiTouchRead(LDSPcontext *context, multiTouchInputChannel channel, int touchSlot=0);
 
 static inline float sliderRead(LDSPcontext *context, int parameterNum);
 static inline void sliderWrite(LDSPcontext *context, int parameterNum, float value);
@@ -99,6 +138,15 @@ static inline void audioWrite(LDSPcontext *context, int frame, int channel, floa
 {
   context->audioOut[frame * context->audioOutChannels + channel] = value;
 }
+
+static inline int multiTouchRead(LDSPcontext *context, multiTouchInputChannel channel, int touchSlot)
+{
+  if(channel==chn_mt_anyTouch)
+    return context->ctrlInputs[chn_btn_count+chn_mt_anyTouch];
+  else
+    return context->ctrlInputs[chn_btn_count+1+(channel-1)*context->mtInfo->touchSlots + touchSlot];
+}
+
 
 // sliderRead()
 //

@@ -16,10 +16,12 @@ struct LDSPinternalContext {
   uint32_t audioOutChannels;
   float audioSampleRate;
   float *sensors;
+  int *ctrlInputs;
   uint32_t sensorChannels;
   bool *sensorsSupported;
   string *sensorsDetails;
   float controlSampleRate; // sensors and output devices
+  multiTouchInfo *mtInfo;
   string projectName;
   float *sliders;
   LDSPlite *ldspLite;
@@ -55,6 +57,10 @@ class OboeAudioEngine : public FullDuplexStream {
 
   void callRender(int audioFrames, float* audioIn, float* audioOut);
 
+  void setUpdateCtrlInBufferCallback(std::function<void()> callback) {
+    _updateCtrlInBufferCallback = callback;
+  }
+  
   float getSampleRate();
   int getFramesPerCallback();
   int getFullDuplex();
@@ -78,6 +84,8 @@ class OboeAudioEngine : public FullDuplexStream {
   float _sliders[4] = {0};
   bool _slidersOff;
 
+  std::function<void()> _updateCtrlInBufferCallback;
+
   oboe::Result createStream(bool isInput);
 };
 
@@ -97,6 +105,10 @@ inline void OboeAudioEngine::callRender(int audioFrames, float* audioIn, float* 
     intContext.sliders[3] = _slider3.load();
   }
 
+  if (_updateCtrlInBufferCallback) {
+    _updateCtrlInBufferCallback();
+  }
+  
   render(userContext, nullptr);
 }
 

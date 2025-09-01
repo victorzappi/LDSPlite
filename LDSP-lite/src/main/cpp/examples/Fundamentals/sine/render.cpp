@@ -39,6 +39,21 @@ bool setup(LDSPcontext *context, void *userData)
 
 void render(LDSPcontext *context, void *userData)
 {
+  // Test touch slot 0
+  int touchId = multiTouchRead(context, chn_mt_id, 0);
+
+  if (touchId != -1) {  // Touch is active
+    int x = multiTouchRead(context, chn_mt_x, 0);
+    int y = multiTouchRead(context, chn_mt_y, 0);
+    int pressure = multiTouchRead(context, chn_mt_pressure, 0);
+
+    // Log only occasionally to avoid flooding
+    static int counter = 0;
+    if (counter++ % 100 == 0) {  // Log every 100 frames
+      LDSP_log("Touch 0: id=%d, x=%d, y=%d, pressure=%d", touchId, x, y, pressure);
+    }
+  }
+
 	for(int n=0; n<context->audioFrames; n++)
 	{
 		float out = amplitude * sinf(phase);

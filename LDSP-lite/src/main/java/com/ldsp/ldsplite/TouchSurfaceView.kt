@@ -50,7 +50,7 @@ class TouchSurfaceView @JvmOverloads constructor(
         val pointerId = event.getPointerId(actionIndex)
         val slot = findSlotForId(pointerId)
         if (slot >= 0) {
-//          nativeLDSP?.clearTouch(slot)
+          nativeLDSP?.clearTouch(slot)
           releaseSlot(slot)
         }
       }
@@ -61,7 +61,7 @@ class TouchSurfaceView @JvmOverloads constructor(
           val pointerId = event.getPointerId(i)
           val slot = findSlotForId(pointerId)
           if (slot >= 0) {
-//            nativeLDSP?.clearTouch(slot)
+            nativeLDSP?.clearTouch(slot)
             releaseSlot(slot)
           }
         }
@@ -72,7 +72,7 @@ class TouchSurfaceView @JvmOverloads constructor(
         val slot = 0 // Use slot 0 for hover
         val hoverX = event.x
         val hoverY = event.y
-//        nativeLDSP?.updateHover(slot, hoverX, hoverY)
+        nativeLDSP?.updateHover(slot, hoverX, hoverY)
       }
     }
 
@@ -106,11 +106,11 @@ class TouchSurfaceView @JvmOverloads constructor(
     } else 0f
 
     // Send to native
-//    nativeLDSP?.updateTouch(
-//      slot, pointerId, x, y, pressure,
-//      majAxis, minAxis, orientation,
-//      majWidth, minWidth
-//    )
+    nativeLDSP?.updateTouch(
+      slot, pointerId, x, y, pressure,
+      majAxis, minAxis, orientation,
+      majWidth, minWidth
+    )
   }
 
   // Simple slot management - maps pointer IDs to slots
@@ -150,6 +150,6 @@ class TouchSurfaceView @JvmOverloads constructor(
   override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
     super.onSizeChanged(w, h, oldw, oldh)
     // Update screen resolution in native code
-//    nativeLDSP?.setScreenResolution(w.toFloat(), h.toFloat())
+    nativeLDSP?.setScreenResolution(w.toFloat(), h.toFloat())
   }
 }

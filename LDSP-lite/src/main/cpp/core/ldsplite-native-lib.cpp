@@ -21,15 +21,15 @@ JNIEXPORT jlong JNICALL
 Java_com_ldsp_ldsplite_NativeLDSPlite_create(
     JNIEnv* env,
     jobject obj) {
-  auto synthesizer =
+  auto ldspLite =
       std::make_unique<ldsplite::LDSPlite>();
 
-  if (not synthesizer) {
-    LDSP_log("Failed to create the synthesizer.");
-    synthesizer.reset(nullptr);
+  if (not ldspLite) {
+    LDSP_log("Failed to create LDSPlite.");
+    ldspLite.reset(nullptr);
   }
 
-  return reinterpret_cast<jlong>(synthesizer.release());
+  return reinterpret_cast<jlong>(ldspLite.release());
 }
 
 JNIEXPORT void JNICALL
@@ -68,33 +68,33 @@ JNIEXPORT void JNICALL
 Java_com_ldsp_ldsplite_NativeLDSPlite_delete(
     JNIEnv* env,
     jobject obj,
-    jlong synthesizerHandle) {
-  auto* synthesizer =
+    jlong ldspLiteHandle) {
+  auto* ldspLite =
       reinterpret_cast<ldsplite::LDSPlite*>(
-          synthesizerHandle);
+          ldspLiteHandle);
 
-  if (not synthesizer) {
-//    LDSP_log("Attempt to destroy an unitialized synthesizer.");
+  if (not ldspLite) {
+//    LDSP_log("Attempt to destroy an unitialized LDSPlite.");
     return;
   }
 
-  delete synthesizer;
+  delete ldspLite;
 }
 
 JNIEXPORT void JNICALL
 Java_com_ldsp_ldsplite_NativeLDSPlite_start(
     JNIEnv* env,
     jobject obj,
-    jlong synthesizerHandle) {
-  auto* synthesizer =
+    jlong ldspLiteHandle) {
+  auto* ldspLite =
       reinterpret_cast<ldsplite::LDSPlite*>(
-          synthesizerHandle);
+          ldspLiteHandle);
 
-  if (synthesizer) {
-    synthesizer->start();
+  if (ldspLite) {
+    ldspLite->start();
   } else {
     LDSP_log(
-        "Synthesizer not created. Please, create the synthesizer first by "
+        "LDSPlite not created. Please, create it first by "
         "calling create().");
   }
 }
@@ -103,16 +103,16 @@ JNIEXPORT void JNICALL
 Java_com_ldsp_ldsplite_NativeLDSPlite_stop(
     JNIEnv* env,
     jobject obj,
-    jlong synthesizerHandle) {
-  auto* synthesizer =
+    jlong ldspLiteHandle) {
+  auto* ldspLite =
       reinterpret_cast<ldsplite::LDSPlite*>(
-          synthesizerHandle);
+          ldspLiteHandle);
 
-  if (synthesizer) {
-    synthesizer->stop();
+  if (ldspLite) {
+    ldspLite->stop();
   } else {
     LDSP_log(
-        "Synthesizer not created. Please, create the synthesizer first by "
+        "LDSPlite not created. Please, create it first by "
         "calling create().");
   }
 }
@@ -121,19 +121,19 @@ JNIEXPORT jboolean JNICALL
 Java_com_ldsp_ldsplite_NativeLDSPlite_isPlaying(
     JNIEnv* env,
     jobject obj,
-    jlong synthesizerHandle) {
-  auto* synthesizer =
+    jlong ldspLiteHandle) {
+  auto* ldspLite =
       reinterpret_cast<ldsplite::LDSPlite*>(
-          synthesizerHandle);
+          ldspLiteHandle);
 
-  if (not synthesizer) {
+  if (not ldspLite) {
     LDSP_log(
-        "Synthesizer not created. Please, create the synthesizer first by "
+        "LDSPlite not created. Please, create it first by "
         "calling create().");
     return false;
   }
 
-  return synthesizer->isStarted();
+  return ldspLite->isStarted();
 }
 
 JNIEXPORT jbyteArray JNICALL Java_com_ldsp_ldsplite_NativeLDSPlite_readFileFromAssets(
@@ -217,18 +217,18 @@ extern "C"
 JNIEXPORT void JNICALL
 Java_com_ldsp_ldsplite_NativeLDSPlite_setSlider0(JNIEnv *env,
                                                 jobject thiz,
-                                                jlong synthesizerHandle,
+                                                jlong ldspLiteHandle,
                                                 jfloat value) {
-  auto* synthesizer =
+  auto* ldspLite =
       reinterpret_cast<ldsplite::LDSPlite*>(
-          synthesizerHandle);
+          ldspLiteHandle);
   const auto nativeValue = static_cast<float>(value);
 
-  if (synthesizer) {
-    synthesizer->setSlider0(nativeValue);
+  if (ldspLite) {
+    ldspLite->setSlider0(nativeValue);
   } else {
     LDSP_log(
-        "Synthesizer not created. Please, create the synthesizer first by "
+        "LDSPlite not created. Please, create it first by "
         "calling create().");
   }
 }
@@ -237,18 +237,18 @@ extern "C"
 JNIEXPORT void JNICALL
 Java_com_ldsp_ldsplite_NativeLDSPlite_setSlider1(JNIEnv *env,
                                                 jobject thiz,
-                                                jlong synthesizerHandle,
+                                                jlong ldspLiteHandle,
                                                 jfloat value) {
-  auto* synthesizer =
+  auto* ldspLite =
       reinterpret_cast<ldsplite::LDSPlite*>(
-          synthesizerHandle);
+          ldspLiteHandle);
   const auto nativeValue = static_cast<float>(value);
 
-  if (synthesizer) {
-    synthesizer->setSlider1(nativeValue);
+  if (ldspLite) {
+    ldspLite->setSlider1(nativeValue);
   } else {
     LDSP_log(
-        "Synthesizer not created. Please, create the synthesizer first by "
+        "LDSPlite not created. Please, create it first by "
         "calling create().");
   }
 }
@@ -257,18 +257,18 @@ extern "C"
 JNIEXPORT void JNICALL
 Java_com_ldsp_ldsplite_NativeLDSPlite_setSlider2(JNIEnv *env,
                                                 jobject thiz,
-                                                jlong synthesizerHandle,
+                                                jlong ldspLiteHandle,
                                                 jfloat value) {
-  auto* synthesizer =
+  auto* ldspLite =
       reinterpret_cast<ldsplite::LDSPlite*>(
-          synthesizerHandle);
+          ldspLiteHandle);
   const auto nativeValue = static_cast<float>(value);
 
-  if (synthesizer) {
-    synthesizer->setSlider2(nativeValue);
+  if (ldspLite) {
+    ldspLite->setSlider2(nativeValue);
   } else {
     LDSP_log(
-        "Synthesizer not created. Please, create the synthesizer first by "
+        "LDSPlite not created. Please, create it first by "
         "calling create().");
   }
 }
@@ -277,18 +277,131 @@ extern "C"
 JNIEXPORT void JNICALL
 Java_com_ldsp_ldsplite_NativeLDSPlite_setSlider3(JNIEnv *env,
                                                 jobject thiz,
-                                                jlong synthesizerHandle,
+                                                jlong ldspLiteHandle,
                                                 jfloat value) {
-  auto* synthesizer =
+  auto* ldspLite =
       reinterpret_cast<ldsplite::LDSPlite*>(
-          synthesizerHandle);
+          ldspLiteHandle);
   const auto nativeValue = static_cast<float>(value);
 
-  if (synthesizer) {
-    synthesizer->setSlider3(nativeValue);
+  if (ldspLite) {
+    ldspLite->setSlider3(nativeValue);
   } else {
     LDSP_log(
-        "Synthesizer not created. Please, create the synthesizer first by "
+        "LDSPlite not created. Please, create it first by "
+        "calling create().");
+  }
+}
+
+
+// multitouch
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_ldsp_ldsplite_NativeLDSPlite_updateTouch(
+    JNIEnv* env,
+    jobject thiz,
+    jlong ldspLiteHandle,
+    jint slot,
+    jint id,
+    jfloat x,
+    jfloat y,
+    jfloat pressure,
+    jfloat majAxis,
+    jfloat minAxis,
+    jfloat orientation,
+    jfloat majWidth,
+    jfloat minWidth) {
+
+  auto* ldspLite =
+      reinterpret_cast<ldsplite::LDSPlite*>(
+          ldspLiteHandle);
+
+  if (ldspLite) {
+    ldspLite->updateTouch(
+        static_cast<int>(slot),
+        static_cast<int>(id),
+        static_cast<float>(x),
+        static_cast<float>(y),
+        static_cast<float>(pressure),
+        static_cast<float>(majAxis),
+        static_cast<float>(minAxis),
+        static_cast<float>(orientation),
+        static_cast<float>(majWidth),
+        static_cast<float>(minWidth));
+  } else {
+    LDSP_log(
+        "LDSPlite not created. Please, create it first by "
+        "calling create().");
+  }
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_ldsp_ldsplite_NativeLDSPlite_updateHover(
+    JNIEnv* env,
+    jobject thiz,
+    jlong ldspLiteHandle,
+    jint slot,
+    jfloat hoverX,
+    jfloat hoverY) {
+
+  auto* ldspLite =
+      reinterpret_cast<ldsplite::LDSPlite*>(
+          ldspLiteHandle);
+
+  if (ldspLite) {
+    ldspLite->updateHover(
+        static_cast<int>(slot),
+        static_cast<float>(hoverX),
+        static_cast<float>(hoverY));
+  } else {
+    LDSP_log(
+        "LDSPlite not created. Please, create it first by "
+        "calling create().");
+  }
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_ldsp_ldsplite_NativeLDSPlite_clearTouch(
+    JNIEnv* env,
+    jobject thiz,
+    jlong ldspLiteHandle,
+    jint slot) {
+
+  auto* ldspLite =
+      reinterpret_cast<ldsplite::LDSPlite*>(
+          ldspLiteHandle);
+
+  if (ldspLite) {
+    ldspLite->clearTouch(static_cast<int>(slot));
+  } else {
+    LDSP_log(
+        "LDSPlite not created. Please, create it first by "
+        "calling create().");
+  }
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_ldsp_ldsplite_NativeLDSPlite_setScreenResolution(
+    JNIEnv* env,
+    jobject thiz,
+    jlong ldspLiteHandle,
+    jfloat width,
+    jfloat height) {
+
+  auto* ldspLite =
+      reinterpret_cast<ldsplite::LDSPlite*>(
+          ldspLiteHandle);
+
+  if (ldspLite) {
+    ldspLite->setScreenResolution(
+        static_cast<float>(width),
+        static_cast<float>(height));
+  } else {
+    LDSP_log(
+        "LDSPlite not created. Please, create it first by "
         "calling create().");
   }
 }
