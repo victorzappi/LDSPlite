@@ -25,6 +25,8 @@ class NativeLDSPlite(context: Context) : LDSPlite, DefaultLifecycleObserver {
   private external fun storeClassLoader(classLoader: ClassLoader)
   external fun readFileFromAssets(context: Context, path: String): ByteArray
 
+  external fun updateAnyTouch(ldspLiteHanlde: Long, state: Int,)
+
   external fun updateTouch(
     ldspLiteHanlde: Long,
     slot: Int,
@@ -151,6 +153,14 @@ class NativeLDSPlite(context: Context) : LDSPlite, DefaultLifecycleObserver {
 
     // create the LDSPlite
     ldspLiteHandle = create()
+  }
+
+  fun updateAnyTouch(state: Int) {
+    synchronized(ldspLiteMutex) {
+      if (ldspLiteHandle != 0L) {
+        updateAnyTouch(ldspLiteHandle, state)
+      }
+    }
   }
 
   fun updateTouch(

@@ -125,33 +125,82 @@ fun LDSPliteApp(
   ldspViewModel: LDSPliteViewModel = viewModel(),
   nativeLDSP: NativeLDSPlite
 ) {
-  Box(modifier = modifier.fillMaxSize()) {
-    // Your existing UI goes here, unchanged
-    Column(
-      modifier = Modifier.fillMaxSize(),
-      horizontalAlignment = Alignment.CenterHorizontally,
-      verticalArrangement = Arrangement.Top,
-    ) {
-      ControlPanel(Modifier, ldspViewModel)
-      StartPanel(Modifier, ldspViewModel)
-    }
+  var currentView by remember { mutableStateOf("controls") }
 
-    // Touch surface overlays on top
-    AndroidView(
-      factory = { context ->
-        TouchSurfaceView(context).apply {
-          setNativeLDSP(nativeLDSP)
-          setBackgroundColor(Color.TRANSPARENT)  // Now make it invisible
-        }
-      },
-//      modifier = Modifier.fillMaxSize()  // Full screen overlay
+  Column(modifier = modifier.fillMaxSize()) {
+    // Tab buttons at the top
+    Row(
       modifier = Modifier
         .fillMaxWidth()
-        .fillMaxHeight(0.6f)  // Only cover top 60% of screen
-    )
+        .padding(8.dp),
+      horizontalArrangement = Arrangement.SpaceEvenly
+    ) {
+      Button(
+        onClick = { currentView = "controls" },
+        colors = ButtonDefaults.buttonColors(
+          backgroundColor = if (currentView == "controls") MaterialTheme.colors.primary
+          else MaterialTheme.colors.surface
+        )
+      ) {
+        Text("Start/Stop")
+      }
+      Button(
+        onClick = { currentView = "sliders" },
+        colors = ButtonDefaults.buttonColors(
+          backgroundColor = if (currentView == "sliders") MaterialTheme.colors.primary
+          else MaterialTheme.colors.surface
+        )
+      ) {
+        Text("Sliders")
+      }
+      Button(
+        onClick = { currentView = "touch" },
+        colors = ButtonDefaults.buttonColors(
+          backgroundColor = if (currentView == "touch") MaterialTheme.colors.primary
+          else MaterialTheme.colors.surface
+        )
+      ) {
+        Text("Touch")
+      }
+    }
+
+    // Show the selected view
+    Box(modifier = Modifier.fillMaxSize()) {
+      when (currentView) {
+        "controls" -> {
+          Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+          ) {
+            StartPanel(Modifier, ldspViewModel)
+          }
+        }
+        "sliders" -> {
+          Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+          ) {
+            ControlPanel(Modifier, ldspViewModel)
+          }
+        }
+        "touch" -> {
+          AndroidView(
+            factory = { context ->
+              TouchSurfaceView(context).apply {
+                setNativeLDSP(nativeLDSP)
+//                setBackgroundColor(Color.TRANSPARENT)
+                setBackgroundColor(Color.parseColor("#10FF0000"))  // Slight red tint to see it
+              }
+            },
+            modifier = Modifier.fillMaxSize()
+          )
+        }
+      }
+    }
   }
 }
-
 @Composable
 private fun ControlPanel(
   modifier: Modifier,

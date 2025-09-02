@@ -20,6 +20,7 @@ class LDSPlite {
 
   bool isStarted() const;
 
+  void updateAnyTouch(int state);
   void updateTouch(int slot, int id, float x, float y, float pressure,
                    float majAxis, float minAxis, float orientation,
                    float majWidth, float minWidth);

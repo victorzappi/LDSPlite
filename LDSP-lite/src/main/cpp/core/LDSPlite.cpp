@@ -61,6 +61,9 @@ void LDSPlite::stop() {
   _isStarted = false;
 }
 
+void LDSPlite::updateAnyTouch(int state) {
+  _ctrlInputs.updateAnyTouch(state);
+}
 
 void LDSPlite::updateTouch(int slot, int id, float x, float y, float pressure,
                  float majAxis, float minAxis, float orientation,

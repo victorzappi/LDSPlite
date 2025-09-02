@@ -34,8 +34,11 @@ class CtrlInputs {
     context->mtInfo = &_mtInfo;
   }
 
-
   // Touch delegating methods
+  void updateAnyTouch(int state) {
+    _touchHandler.updateAnyTouch(state);
+  }
+
   void updateTouch(int slot, int id, float x, float y, float pressure,
                    float majAxis, float minAxis, float orientation,
                    float majWidth, float minWidth) {

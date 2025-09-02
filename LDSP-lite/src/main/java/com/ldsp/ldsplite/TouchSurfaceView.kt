@@ -2,6 +2,8 @@ package com.ldsp.ldsplite
 
 import android.content.Context
 import android.util.AttributeSet
+import android.util.Log
+import android.view.InputDevice
 import android.view.MotionEvent
 import android.view.View
 
@@ -25,8 +27,19 @@ class TouchSurfaceView @JvmOverloads constructor(
     val actionIndex = event.actionIndex
 
     when (action) {
-      MotionEvent.ACTION_DOWN,
+      MotionEvent.ACTION_DOWN -> {
+        // First finger down - anyTouch becomes true
+        nativeLDSP?.updateAnyTouch(1)
+
+        val pointerId = event.getPointerId(actionIndex)
+        val slot = findSlotForId(pointerId)
+        if (slot >= 0) {
+          updateTouchData(event, actionIndex, slot, pointerId)
+        }
+      }
+
       MotionEvent.ACTION_POINTER_DOWN -> {
+        // Additional finger down - anyTouch already true, no need to update
         val pointerId = event.getPointerId(actionIndex)
         val slot = findSlotForId(pointerId)
         if (slot >= 0) {
@@ -45,8 +58,8 @@ class TouchSurfaceView @JvmOverloads constructor(
         }
       }
 
-      MotionEvent.ACTION_UP,
       MotionEvent.ACTION_POINTER_UP -> {
+        // A finger up but others remain - anyTouch stays true
         val pointerId = event.getPointerId(actionIndex)
         val slot = findSlotForId(pointerId)
         if (slot >= 0) {
@@ -55,15 +68,15 @@ class TouchSurfaceView @JvmOverloads constructor(
         }
       }
 
-      MotionEvent.ACTION_CANCEL -> {
-        // Clear all touches
-        for (i in 0 until pointerCount) {
-          val pointerId = event.getPointerId(i)
-          val slot = findSlotForId(pointerId)
-          if (slot >= 0) {
-            nativeLDSP?.clearTouch(slot)
-            releaseSlot(slot)
-          }
+      MotionEvent.ACTION_UP -> {
+        // Last finger up - anyTouch becomes false
+        nativeLDSP?.updateAnyTouch(0)
+
+        val pointerId = event.getPointerId(actionIndex)
+        val slot = findSlotForId(pointerId)
+        if (slot >= 0) {
+          nativeLDSP?.clearTouch(slot)
+          releaseSlot(slot)
         }
       }
 
@@ -74,10 +87,24 @@ class TouchSurfaceView @JvmOverloads constructor(
         val hoverY = event.y
         nativeLDSP?.updateHover(slot, hoverX, hoverY)
       }
+
+      MotionEvent.ACTION_CANCEL -> {
+        // System cancelled all touches - anyTouch becomes false
+        nativeLDSP?.updateAnyTouch(0)
+        
+        // Clear all slots that we think are active, not just what's in the event
+        for ((pointerId, slot) in slotMap.entries) {
+          nativeLDSP?.clearTouch(slot)
+        }
+        // Now reset our tracking
+        usedSlots.fill(false)
+        slotMap.clear()
+      }
     }
 
     return true
   }
+
 
   private fun updateTouchData(event: MotionEvent, pointerIndex: Int, slot: Int, pointerId: Int) {
     val x = event.getX(pointerIndex)

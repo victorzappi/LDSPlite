@@ -30,9 +30,14 @@ class TouchHandler {
   static constexpr int MAX_SLOTS = 10;
 
   TouchHandler() {
+    anyTouch.store(0);
     for (int i = 0; i < MAX_SLOTS; ++i) {
       _touches[i].id.store(-1, std::memory_order_relaxed);
     }
+  }
+
+  void updateAnyTouch(int state) {
+    anyTouch.store(state);
   }
 
   void updateTouch(int slot, int id, float x, float y, float pressure,
@@ -73,14 +78,14 @@ class TouchHandler {
     int offset = chn_btn_count;
 
     // Set anyTouch flag - check if any touch is active
-    int anyTouch = 0;
-    for (const auto& touch : _touches) {
-      if (touch.id.load(std::memory_order_relaxed) != -1) {
-        anyTouch = 1;
-        break;
-      }
-    }
-    ctrlInputs[offset] = anyTouch;
+//    int anyTouch = 0;
+//    for (const auto& touch : _touches) {
+//      if (touch.id.load(std::memory_order_relaxed) != -1) {
+//        anyTouch = 1;
+//        break;
+//      }
+//    }
+    ctrlInputs[offset] = anyTouch.load();//anyTouch;
     offset++;
 
     // Fill touch data for each channel
@@ -138,6 +143,7 @@ class TouchHandler {
   float getScreenHeight() const { return _screenHeight; }
 
  private:
+  std::atomic<int> anyTouch;
   std::array<TouchData, MAX_SLOTS> _touches;
   float _screenWidth = 1920.0f;
   float _screenHeight = 1080.0f;

@@ -13,10 +13,11 @@ project("ldsplite")
 # Select current LDSP project directory
 # the starting location is where the current CMakeLists.txt file is
 #set(PRJ_DIR "_projects/ED_conditioned")
-set(PRJ_DIR "examples/Fundamentals/sine")
+#set(PRJ_DIR "examples/Fundamentals/sine")
 #set(PRJ_DIR "examples/Fundamentals/passthrough")
 #set(PRJ_DIR "examples/Audio/sample_player")
 #set(PRJ_DIR "examples/MachineLearning/RTNeural_conditioned")
+set(PRJ_DIR "examples/InputOutput/singletouch")
 #---------------------------------------------------------------------------------------------------
 
 

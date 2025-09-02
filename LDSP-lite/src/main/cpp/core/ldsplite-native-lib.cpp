@@ -295,6 +295,26 @@ Java_com_ldsp_ldsplite_NativeLDSPlite_setSlider3(JNIEnv *env,
 
 
 // multitouch
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_ldsp_ldsplite_NativeLDSPlite_updateAnyTouch(
+    JNIEnv *env,
+    jobject thiz,
+    jlong ldspLiteHandle,
+    jint state) {
+  auto* ldspLite =
+      reinterpret_cast<ldsplite::LDSPlite*>(
+          ldspLiteHandle);
+
+  if (ldspLite) {
+    ldspLite->updateAnyTouch(static_cast<int>(state));
+  } else {
+    LDSP_log(
+        "LDSPlite not created. Please, create it first by "
+        "calling create().");
+  }
+}
 extern "C"
 JNIEXPORT void JNICALL
 Java_com_ldsp_ldsplite_NativeLDSPlite_updateTouch(
@@ -405,4 +425,3 @@ Java_com_ldsp_ldsplite_NativeLDSPlite_setScreenResolution(
         "calling create().");
   }
 }
-

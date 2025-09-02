@@ -20,34 +20,69 @@
 #include "LDSP.h"
 #include <cmath> // sin
 
-float frequency = 440.0;
-float amplitude = 0.2;
+
+float freqMax = 880;
+float freqMin = 220;
+float ampMax = 0.7;
 
 //------------------------------------------------
+float frequency = 440.0;
+float amplitude = 0.0;
 float phase;
 float inverseSampleRate;
+
+float maxTouchX;
+float maxTouchY;
+
+bool touchPrev;
 
 
 bool setup(LDSPcontext *context, void *userData)
 {
-  inverseSampleRate = 1.0 / context->audioSampleRate;
-  phase = 0.0;
+    inverseSampleRate = 1.0 / context->audioSampleRate;
+	phase = 0.0;
 
-  return true;
+	// retrieve touchscreen resolution
+    maxTouchX = context->mtInfo->screenResolution[0]-1;
+    maxTouchY = context->mtInfo->screenResolution[1]-1;
+
+    return true;
 }
 
 void render(LDSPcontext *context, void *userData)
 {
-  for(int n=0; n<context->audioFrames; n++)
-  {
-    float out = amplitude * sinf(phase);
-    phase += 2.0f * (float)M_PI * frequency * inverseSampleRate;
-    while(phase > 2.0f *M_PI)
-      phase -= 2.0f * (float)M_PI;
+	// check if we have touch
+	bool touch; 
+	if(context->mtInfo->anyTouchSupported)
+		touch = (multiTouchRead(context, chn_mt_anyTouch) == 1); // not all phones support anyTouch input, that checks all slots automatically
+	else
+		touch = (multiTouchRead(context, chn_mt_id, 0) != -1); // on most phones the slot is given an actual index only when a touch is detected
 
-    for(int chn=0; chn<context->audioOutChannels; chn++)
-      audioWrite(context, n, chn, out);
-  }
+	if(touch)
+	{
+		float touchX = multiTouchRead(context, chn_mt_x, 0)/maxTouchX;
+		float touchY = multiTouchRead(context, chn_mt_y, 0)/maxTouchY;
+        
+		// control frequency and amplitude with touch position
+        frequency = map(touchX, 0, 1, freqMin, freqMax);
+		amplitude = map(touchY, 0, 1, ampMax, 0);
+	}
+	else if(touchPrev) // if touch has just been released
+		amplitude = 0; // silence output
+
+	touchPrev = touch;
+	
+
+	for(int n=0; n<context->audioFrames; n++)
+	{
+		float out = amplitude * sinf(phase);
+		phase += 2.0f * (float)M_PI * frequency * inverseSampleRate;
+		while(phase > 2.0f *M_PI)
+			phase -= 2.0f * (float)M_PI;
+		
+		for(int chn=0; chn<context->audioOutChannels; chn++)
+            audioWrite(context, n, chn, out);
+	}
 }
 
 void cleanup(LDSPcontext *context, void *userData)
